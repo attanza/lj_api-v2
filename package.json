@@ -1,0 +1,71 @@
+{
+  "name": "langsung-jalan",
+  "version": "4.1.2",
+  "adonis-version": "4.1.0",
+  "description": "Langsung Jalan API Back End",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node ace test",
+    "fdev": "NODE_ENV=development webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "fwatch": "NODE_ENV=development webpack --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "fhot": "NODE_ENV=development webpack-dev-server --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "fprod": "NODE_ENV=production webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "keywords": [
+    "adonisjs",
+    "adonis-app"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@adonisjs/ace": "^5.0.8",
+    "@adonisjs/auth": "^3.0.7",
+    "@adonisjs/bodyparser": "^2.0.9",
+    "@adonisjs/cors": "^1.0.7",
+    "@adonisjs/drive": "^1.0.4",
+    "@adonisjs/fold": "^4.0.9",
+    "@adonisjs/framework": "^5.0.12",
+    "@adonisjs/ignitor": "^2.0.8",
+    "@adonisjs/lucid": "^6.1.3",
+    "@adonisjs/lucid-slugify": "^1.0.3",
+    "@adonisjs/mail": "^3.0.9",
+    "@adonisjs/redis": "^2.0.7",
+    "@adonisjs/session": "^1.0.28",
+    "@adonisjs/validator": "^5.0.6",
+    "@adonisjs/vow": "^1.0.17",
+    "@adonisjs/websocket": "^1.0.11",
+    "adonis-acl": "^1.1.1",
+    "adonis-scheduler": "^3.0.2",
+    "adonis-spreadsheet": "^1.0.1",
+    "adonis-swagger-jsdoc": "^1.0.3",
+    "axios": "^0.19.2",
+    "change-case": "^3.0.2",
+    "firebase-admin": "^6.5.0",
+    "fs-extra": "^7.0.1",
+    "laravel-mix": "^4.0.13",
+    "mysql": "^2.16.0",
+    "randomstring": "^1.1.5",
+    "redis-delete-pattern": "^0.1.0",
+    "socket.io": "^2.2.0",
+    "twilio": "^3.27.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.12.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "vue": "^2.5.21",
+    "vue-markdown": "^2.2.4",
+    "vue-template-compiler": "^2.5.21",
+    "vuetify": "^1.4.1"
+  },
+  "autoload": {
+    "App": "./app"
+  }
+}

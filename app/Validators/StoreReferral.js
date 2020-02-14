@@ -8,10 +8,10 @@ class StoreReferral {
     return {
       code: "required|string|min:3",
       maxConsumer: "integer",
-      products: "array",
+      // products: "array",
       // "products.*.id": "required|integer|exists:products,id",
       // "products.*.name": "required|string|max:50",
-      validUntil: "required|date",
+      // validUntil: "required|date",
       description: "max:250",
     }
   }

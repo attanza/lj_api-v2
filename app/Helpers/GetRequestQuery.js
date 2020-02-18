@@ -1,39 +1,13 @@
 "use strict"
 
 module.exports = request => {
-  let {
-    page,
-    limit,
-    search,
-    search_by,
-    search_query,
-    between_date,
-    start_date,
-    end_date,
-    sort_by,
-    sort_mode,
-  } = request.get()
+  let query = request.get()
+  if (!query.page) query.page = 1
+  if (!query.limit) query.limit = 10
+  if (!query.sort_by) query.sort_by = "id"
+  if (!query.sort_mode) query.sort_mode = "desc"
 
-  if (!page) page = 1
-  if (!limit) limit = 10
-  if (!sort_by) sort_by = "id"
-  if (!sort_mode) sort_mode = "desc"
-
-  const redisKey = `_${page}${limit}${sort_by}${sort_mode}${search_by ||
-    ""}${search_query || ""}${between_date || ""}${start_date ||
-    ""}${end_date || ""}`
-
-  return {
-    page,
-    limit,
-    search,
-    search_by,
-    search_query,
-    between_date,
-    start_date,
-    end_date,
-    sort_by,
-    sort_mode,
-    redisKey: redisKey.trim(),
-  }
+  const redisKey = Object.values(query).join("")
+  query.redisKey = redisKey
+  return query
 }

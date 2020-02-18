@@ -145,4 +145,5 @@ Temporary Items
 # Ignore all local history of files
 .history
 
-# End of https://www.gitignore.io/api/osx,node,visualstudiocode
+# IDEA
+idea/

@@ -450,6 +450,7 @@ Route.group(() => {
         [["products.destroy"], ["can:delete-product"]],
       ])
     )
+  Route.get("/product/:code/price", "ProductController.getPrice")
 
   /**
    * Error Log

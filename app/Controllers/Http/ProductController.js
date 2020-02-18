@@ -2,8 +2,7 @@
 
 const Product = use("App/Models/Product")
 const { RedisHelper, ResponseParser, ErrorLog } = use("App/Helpers")
-const { ActivityTraits } = use("App/Traits")
-
+const { ActivityTraits, ReferralTrait } = use("App/Traits")
 const fillable = [
   "code",
   "name",
@@ -57,7 +56,7 @@ class ProductController {
             this.orWhere("name", "like", `%${search}%`)
             this.orWhere("measurement", "like", `%${search}%`)
             this.orWhere("price", "like", `%${search}%`)
-            this.orWhere("description", "like", `%${search}%`)
+            this.orWhere("discount_price", "like", `%${search}%`)
           }
 
           if (search_by && search_query) {
@@ -173,6 +172,32 @@ class ProductController {
       await RedisHelper.delete("Dashboard_Data")
       await data.delete()
       return response.status(200).send(ResponseParser.apiDeleted())
+    } catch (e) {
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async getPrice({ request, response }) {
+    try {
+      const { code } = request.params
+      const product = await Product.query()
+        .where("id", code)
+        .orWhere("code", code)
+        .first()
+      if (!product) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+      const { referral } = request.get()
+      if (referral && referral !== "") {
+        const isExists = await ReferralTrait.check(referral)
+        if (isExists) {
+          return response
+            .status(200)
+            .send(ResponseParser.apiItem(product.discount_price))
+        }
+      }
+      return response.status(200).send(ResponseParser.apiItem(product.price))
     } catch (e) {
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())

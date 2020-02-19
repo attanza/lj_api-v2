@@ -21,6 +21,8 @@ const resources = [
   "MarketingReportYear",
   "MarketingTarget",
   "DownPayment",
+  "Referral",
+  "OnlineProductOrder",
 ]
 
 const otherPermissions = ["Clear Redis"]

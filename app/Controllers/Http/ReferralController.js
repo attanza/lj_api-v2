@@ -1,7 +1,7 @@
 "use strict"
 
 const { ReferralTrait } = use("App/Traits")
-const { GetRequestQuery, ResponseParser, RedisHelper, ErrorLog } = use(
+const { GetRequestQuery, ResponseParser, ErrorLog, RedisHelper } = use(
   "App/Helpers"
 )
 const moment = require("moment")
@@ -11,9 +11,19 @@ class ReferralController {
   async index({ request, response }) {
     try {
       const query = GetRequestQuery(request)
+      const { redisKey } = query
+      const cache = await RedisHelper.get(redisKey)
+      if (cache && cache != null) {
+        return cache
+      }
       const data = await ReferralTrait.all(query)
+
+      if (!query.search || query.search === "") {
+        RedisHelper.set(redisKey, data)
+      }
       return data
     } catch (e) {
+      console.log("e", e)
       ErrorLog(request, e)
       if (e.response && e.response.data) {
         return response
@@ -27,7 +37,13 @@ class ReferralController {
   async show({ request, response }) {
     try {
       const { id } = request.params
+      const redisKey = `Referral_${id}`
+      const cache = await RedisHelper.get(redisKey)
+      if (cache && cache != null) {
+        return cache
+      }
       const data = await ReferralTrait.show(id)
+      RedisHelper.set(redisKey, data)
       return response.status(200).send(data)
     } catch (e) {
       ErrorLog(request, e)

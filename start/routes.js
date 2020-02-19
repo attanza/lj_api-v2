@@ -554,6 +554,30 @@ Route.group(() => {
         [["down-payments.destroy"], ["can:delete-down-payment"]],
       ])
     )
+
+  /**
+   * Online Product Order
+   */
+
+  Route.resource("online-product-orders", "OnlineProductOrderController")
+    .apiOnly()
+    .validator(
+      new Map([
+        [["online-product-orders.store"], ["StoreOnlineProductOrder"]],
+        [["online-product-orders.update"], ["UpdateOnlineProductOrder"]],
+      ])
+    )
+    .middleware(
+      new Map([
+        [["online-product-orders.index"], ["can:read-online-product-order"]],
+        [["online-product-orders.store"], ["can:create-online-product-order"]],
+        [["online-product-orders.update"], ["can:update-online-product-order"]],
+        [
+          ["online-product-orders.destroy"],
+          ["can:delete-online-product-order"],
+        ],
+      ])
+    )
 })
   .prefix("api/v1")
   .formats(["json"])

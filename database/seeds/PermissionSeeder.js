@@ -23,6 +23,7 @@ const resources = [
   "MarketingTarget",
   "DownPayment",
   "Referral",
+  "OnlineProductOrder",
 ]
 const actions = ["create", "read", "update", "delete"]
 

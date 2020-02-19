@@ -9,17 +9,10 @@ class ReferralTrait {
     axios.defaults.baseURL = Env.get("REFERRAL_API")
   }
   async all(query) {
-    const { redisKey } = query
-    const cache = await RedisHelper.get(redisKey)
-    if (cache && cache != null) {
-      return cache
-    }
     const resp = await axios
       .get("referrals" + parseMicroApiQuery(query))
       .then(res => res.data)
-    if (!query.search || query.search === "") {
-      RedisHelper.set(redisKey, resp)
-    }
+
     return resp
   }
 
@@ -30,13 +23,7 @@ class ReferralTrait {
   }
 
   async show(id) {
-    const redisKey = `Referral_${id}`
-    const cache = await RedisHelper.get(redisKey)
-    if (cache && cache != null) {
-      return cache
-    }
     const resp = await axios.get("referrals/" + id).then(res => res.data)
-    RedisHelper.set(redisKey, resp)
     return resp
   }
 
@@ -53,10 +40,20 @@ class ReferralTrait {
     return resp
   }
 
+  /**
+   * Check if referral code is exists
+   * @param {string} code
+   * @returns boolean
+   */
   async check(code) {
     const resp = await axios
       .get(`/referrals/${code}/check`)
       .then(res => res.data)
+    return resp
+  }
+
+  async getByCode(code) {
+    const resp = await axios.get(`/referral/${code}`).then(res => res.data)
     return resp
   }
 }

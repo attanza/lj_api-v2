@@ -6,7 +6,6 @@ const Env = use("Env")
 const User = use("App/Models/User")
 
 Route.get("/", "DocumentController.intro")
-
 Route.get("/docs", "DocumentController.index")
 
 Route.group(() => {
@@ -23,7 +22,6 @@ Route.group(() => {
 /**
  * Auth:jwt Route
  */
-
 Route.group(() => {
   /**
    * Redis
@@ -317,14 +315,14 @@ Route.group(() => {
         [["referrals.index"], ["List"]],
       ])
     )
-  // .middleware(
-  //   new Map([
-  //     [["referrals.index"], ["can:read-referral"]],
-  //     [["referrals.store"], ["can:create-referral"]],
-  //     [["referrals.update"], ["can:update-referral"]],
-  //     [["referrals.destroy"], ["can:delete-referral"]],
-  //   ])
-  // )
+    .middleware(
+      new Map([
+        [["referrals.index"], ["can:read-referral"]],
+        [["referrals.store"], ["can:create-referral"]],
+        [["referrals.update"], ["can:update-referral"]],
+        [["referrals.destroy"], ["can:delete-referral"]],
+      ])
+    )
 
   /**
    * Universities
@@ -561,16 +559,15 @@ Route.group(() => {
 
   Route.resource("online-product-orders", "OnlineProductOrderController")
     .apiOnly()
+    .except(["store"])
     .validator(
       new Map([
-        [["online-product-orders.store"], ["StoreOnlineProductOrder"]],
         [["online-product-orders.update"], ["UpdateOnlineProductOrder"]],
       ])
     )
     .middleware(
       new Map([
         [["online-product-orders.index"], ["can:read-online-product-order"]],
-        [["online-product-orders.store"], ["can:create-online-product-order"]],
         [["online-product-orders.update"], ["can:update-online-product-order"]],
         [
           ["online-product-orders.destroy"],
@@ -586,7 +583,6 @@ Route.group(() => {
 /**
  * Auth:jwt, me Routes
  */
-
 Route.group(() => {
   Route.put("profile/:id", "ProfileController.update").validator(
     "ProfileUpdate"
@@ -602,7 +598,18 @@ Route.group(() => {
   .middleware(["auth:jwt", "me"])
 
 /**
- * No Middleware
+ * No Auth Middleware
+ */
+Route.group(() => {
+  Route.post("online-product-orders", "OnlineProductOrderController.store")
+    .validator("StoreOnlineProductOrder")
+    .middleware("throttle:3")
+})
+  .prefix("api/v1")
+  .formats(["json"])
+
+/**
+ * Client Middleware
  */
 Route.group(() => {
   Route.get("check-target-code/:code", "MarketingTargetController.checkCode")

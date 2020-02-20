@@ -59,6 +59,15 @@ class ExceptionHandler extends BaseExceptionHandler {
       })
     }
 
+    if (error.name === "TooManyRequests") {
+      return response.status(429).send({
+        meta: {
+          status: 429,
+          message: "TooManyRequests",
+        },
+      })
+    }
+
     return super.handle(...arguments)
   }
 

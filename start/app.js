@@ -25,9 +25,8 @@ const providers = [
   "adonis-acl/providers/AclProvider",
   "adonis-scheduler/providers/SchedulerProvider",
   "@adonisjs/drive/providers/DriveProvider",
-  "adonis-spreadsheet/providers/SpreadSheetProvider",
-  "@adonisjs/websocket/providers/WsProvider",
   "@adonisjs/lucid-slugify/providers/SlugifyProvider",
+  "adonis-throttle/providers/ThrottleProvider",
 ]
 
 /*
@@ -62,6 +61,7 @@ const aliases = {
   Role: "Adonis/Acl/Role",
   Permission: "Adonis/Acl/Permission",
   Scheduler: "Adonis/Addons/Scheduler",
+  Throttle: "Adonis/Addons/Throttle",
 }
 
 /*

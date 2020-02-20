@@ -46,6 +46,7 @@ const namedMiddleware = {
   is: "Adonis/Acl/Is",
   can: "Adonis/Acl/Can",
   client: "App/Middleware/Client",
+  throttle: "Adonis/Middleware/Throttle",
 }
 
 /*

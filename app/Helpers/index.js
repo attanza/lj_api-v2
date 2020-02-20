@@ -5,8 +5,8 @@ const MailHelper = require("./MailHelper")
 const InArray = require("./InArray")
 const PushNotifications = require("./PushNotifications")
 const AesUtil = require("./AesUtil")
-const TwilioApi = require("./TwilioApi")
-const TwilioWAApi = require("./TwilioWAApi")
+// const TwilioApi = require("./TwilioApi")
+// const TwilioWAApi = require("./TwilioWAApi")
 const ErrorLog = require("./ErrorLog")
 const GetRequestQuery = require("./GetRequestQuery")
 const parseMicroApiQuery = require("./parseMicroApiQuery")
@@ -19,8 +19,8 @@ module.exports = {
   InArray,
   PushNotifications,
   AesUtil,
-  TwilioApi,
-  TwilioWAApi,
+  // TwilioApi,
+  // TwilioWAApi,
   ErrorLog,
   GetRequestQuery,
   parseMicroApiQuery,

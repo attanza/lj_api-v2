@@ -1,12 +1,74 @@
 "use strict"
 
-const { ResponseParser, ErrorLog } = use("App/Helpers")
+const { ResponseParser, ErrorLog, RedisHelper, GetRequestQuery } = use(
+  "App/Helpers"
+)
 const Product = use("App/Models/Product")
 const OnlineProductOrder = use("App/Models/OnlineProductOrder")
-const { ReferralTrait } = use("App/Traits")
+const { ReferralTrait, ActivityTraits } = use("App/Traits")
 const moment = require("moment")
 const { orderStatus } = use("App/Helpers/Constants")
+
 class OnlineProductOrderController {
+  async index({ request, response }) {
+    try {
+      const query = GetRequestQuery(request)
+      const { redisKey } = query
+      const cache = await RedisHelper.get("OnlineProductOrder_" + redisKey)
+      if (cache && cache != null) {
+        return cache
+      }
+      const {
+        search,
+        search_by,
+        search_query,
+        between_date,
+        start_date,
+        end_date,
+        sort_by,
+        sort_mode,
+        page,
+        limit,
+      } = query
+      const regexSearchKeys = ["order_no", "email", "phone", "status"]
+      const searchKeys = ["marketing_id", "product_id"]
+      const data = await OnlineProductOrder.query()
+        .with("marketing", builder => {
+          builder.select("id", "name", "email")
+        })
+        .with("product", builder => {
+          builder.select("id", "name", "code", "price", "discount_price")
+        })
+        .where(function() {
+          if (search && search != "") {
+            this.where(regexSearchKeys[0], "like", `%${search}%`)
+            regexSearchKeys.forEach(s => this.orWhere(s, "like", `%${search}%`))
+          }
+
+          if (search_by && searchKeys.includes(search_by) && search_query) {
+            this.where(search_by, search_query)
+          }
+
+          if (between_date && start_date && end_date) {
+            this.whereBetween(between_date, [start_date, end_date])
+          }
+        })
+        .orderBy(sort_by, sort_mode)
+        .paginate(page, limit)
+
+      let parsed = ResponseParser.apiCollection(data.toJSON())
+
+      if (!search || search == "") {
+        await RedisHelper.set("OnlineProductOrder_" + redisKey, parsed)
+      }
+      return response.status(200).send(parsed)
+    } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
   async store({ request, response }) {
     try {
       const fillable = [
@@ -45,12 +107,94 @@ class OnlineProductOrderController {
         referral: body.referral,
         marketing_id: parseInt(referralData.creator.id),
         product_id: product.id,
+        price: referralData ? product.discount_price : price,
       }
 
       const newOrder = await OnlineProductOrder.create(orderData)
 
+      RedisHelper.delete("OnlineProductOrder_*")
+
       return response.status(200).send(ResponseParser.apiCreated(newOrder))
     } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async update({ request, response, auth }) {
+    try {
+      const fillable = [
+        "name",
+        "email",
+        "phone",
+        "university",
+        "referral",
+        "status",
+        "marketing_id",
+        "product_id",
+      ]
+      let body = request.only(fillable)
+      const id = request.params.id
+      const data = await OnlineProductOrder.find(id)
+      if (!data) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+      data.merge(body)
+      await data.save()
+      const activity = `Update OnlineProductOrder '${data.order_no}'`
+      ActivityTraits.saveActivity(request, auth, activity)
+      RedisHelper.delete("OnlineProductOrder_*")
+      await data.loadMany(["marketing", "product"])
+
+      let parsed = ResponseParser.apiUpdated(data.toJSON())
+      return response.status(200).send(parsed)
+    } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async show({ request, response }) {
+    try {
+      const id = request.params.id
+      let redisKey = `OnlineProductOrder_${id}`
+      let cached = await RedisHelper.get(redisKey)
+      if (cached) {
+        return response.status(200).send(cached)
+      }
+      const data = await OnlineProductOrder.find(id)
+      if (!data) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+      await data.loadMany(["marketing", "product"])
+      let parsed = ResponseParser.apiItem(data.toJSON())
+      await RedisHelper.set(redisKey, parsed)
+      return response.status(200).send(parsed)
+    } catch (e) {
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async destroy({ request, response, auth }) {
+    try {
+      const id = request.params.id
+      const data = await OnlineProductOrder.find(id)
+      if (!data) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+
+      const activity = `Delete OnlineProductOrder '${data.order_no}'`
+      Promise.all([
+        ActivityTraits.saveActivity(request, auth, activity),
+        RedisHelper.delete("OnlineProductOrder_*"),
+        data.delete(),
+      ])
+      return response.status(200).send(ResponseParser.apiDeleted())
+    } catch (e) {
+      console.log("e", e)
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())
     }

@@ -35,11 +35,9 @@
     "@adonisjs/session": "^1.0.28",
     "@adonisjs/validator": "^5.0.6",
     "@adonisjs/vow": "^1.0.17",
-    "@adonisjs/websocket": "^1.0.11",
     "adonis-acl": "^1.1.1",
     "adonis-scheduler": "^3.0.2",
-    "adonis-spreadsheet": "^1.0.1",
-    "adonis-swagger-jsdoc": "^1.0.3",
+    "adonis-throttle": "^2.3.6",
     "axios": "^0.19.2",
     "change-case": "^3.0.2",
     "firebase-admin": "^6.5.0",
@@ -47,9 +45,7 @@
     "laravel-mix": "^4.0.13",
     "mysql": "^2.16.0",
     "randomstring": "^1.1.5",
-    "redis-delete-pattern": "^0.1.0",
-    "socket.io": "^2.2.0",
-    "twilio": "^3.27.1"
+    "redis-delete-pattern": "^0.1.0"
   },
   "devDependencies": {
     "eslint": "^5.12.0",

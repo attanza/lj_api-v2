@@ -315,14 +315,14 @@ Route.group(() => {
         [["referrals.index"], ["List"]],
       ])
     )
-    .middleware(
-      new Map([
-        [["referrals.index"], ["can:read-referral"]],
-        [["referrals.store"], ["can:create-referral"]],
-        [["referrals.update"], ["can:update-referral"]],
-        [["referrals.destroy"], ["can:delete-referral"]],
-      ])
-    )
+  // .middleware(
+  //   new Map([
+  //     [["referrals.index"], ["can:read-referral"]],
+  //     [["referrals.store"], ["can:create-referral"]],
+  //     [["referrals.update"], ["can:update-referral"]],
+  //     [["referrals.destroy"], ["can:delete-referral"]],
+  //   ])
+  // )
 
   /**
    * Universities

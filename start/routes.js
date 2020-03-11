@@ -622,3 +622,7 @@ Route.group(() => {
 })
   .prefix("api/v1")
   .middleware(["client", "throttle:3"])
+
+Route.group(() => {
+  Route.post("midtrans-notification", "MidtransController.notifHandler")
+}).prefix("api/v1")

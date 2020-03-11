@@ -175,7 +175,7 @@ class ProductActivatorController {
 
   async check({ request, response }) {
     try {
-      const { code, device_id } = request.get()
+      const { code, device_id, product } = request.get()
       if (!code || !device_id) {
         return response.status(200).send({ active: false })
       }
@@ -186,8 +186,14 @@ class ProductActivatorController {
       if (activator.device_id !== device_id) {
         return response.status(200).send({ active: false })
       }
+      await activator.load("order.product")
+      const activatorJson = activator.toJSON()
+      if (activatorJson.order.product.code !== product) {
+        return response.status(200).send({ active: false })
+      }
       return response.status(200).send({ active: true })
     } catch (e) {
+      console.log("e", e)
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())
     }

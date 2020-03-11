@@ -12,14 +12,15 @@ class ReferralController {
     try {
       const query = GetRequestQuery(request)
       const { redisKey } = query
-      const cache = await RedisHelper.get(redisKey)
+      const cache = await RedisHelper.get(`Referral_${redisKey}`)
       if (cache && cache != null) {
+        console.log("get referral from cache")
         return cache
       }
       const data = await ReferralTrait.all(query)
 
       if (!query.search || query.search === "") {
-        RedisHelper.set(redisKey, data)
+        RedisHelper.set(`Referral_${redisKey}`, data)
       }
       return data
     } catch (e) {
@@ -69,12 +70,15 @@ class ReferralController {
       body.validUntil = moment().add(1, "d")
 
       const data = await ReferralTrait.store(body)
-      const activity = `Add new Referral '${data.code}'`
+      const activity = `Add new Referral '${data.data.code}'`
 
-      ActivityTraits.saveActivity(request, auth, activity)
-
+      Promise.all([
+        ActivityTraits.saveActivity(request, auth, activity),
+        RedisHelper.delete("Referral_*"),
+      ])
       return response.status(201).send(data)
     } catch (e) {
+      console.log("e", e)
       ErrorLog(request, e)
       if (e.response && e.response.data) {
         return response
@@ -91,9 +95,12 @@ class ReferralController {
       const body = request.post()
       const data = await ReferralTrait.update(id, body)
 
-      const activity = `Update Referral '${data.code}'`
+      const activity = `Update Referral '${data.data.code}'`
 
-      ActivityTraits.saveActivity(request, auth, activity)
+      Promise.all([
+        ActivityTraits.saveActivity(request, auth, activity),
+        RedisHelper.delete("Referral_*"),
+      ])
 
       return data
     } catch (e) {
@@ -112,12 +119,16 @@ class ReferralController {
       const id = request.params.id
       const data = await ReferralTrait.destroy(id)
 
-      const activity = `Delete Referral '${data.code}'`
+      const activity = `Delete Referral '${id}'`
 
-      ActivityTraits.saveActivity(request, auth, activity)
+      Promise.all([
+        ActivityTraits.saveActivity(request, auth, activity),
+        RedisHelper.delete("Referral_*"),
+      ])
 
       return data
     } catch (e) {
+      console.log("e", e)
       ErrorLog(request, e)
       if (e.response && e.response.data) {
         return response

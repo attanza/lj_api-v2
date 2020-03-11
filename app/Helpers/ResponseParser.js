@@ -99,7 +99,7 @@ class ResponseParser {
     return {
       meta: {
         status: 401,
-        message: "Unathorized",
+        message: "Unauthorized",
       },
     }
   }

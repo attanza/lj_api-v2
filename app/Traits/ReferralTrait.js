@@ -53,8 +53,13 @@ class ReferralTrait {
   }
 
   async getByCode(code) {
-    const resp = await axios.get(`/referral/${code}`).then(res => res.data)
-    return resp
+    try {
+      const resp = await axios.get(`/referral/${code}`).then(res => res.data)
+      return resp
+    } catch (error) {
+      console.log("error", JSON.stringify(error))
+      return null
+    }
   }
 }
 

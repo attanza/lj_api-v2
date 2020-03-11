@@ -69,57 +69,71 @@ class OnlineProductOrderController {
     }
   }
 
+  async review({ request, response }) {
+    const orderData = await this.countOrder(request, response)
+    return response.status(200).send(ResponseParser.apiItem(orderData))
+  }
+
   async store({ request, response }) {
     try {
-      const fillable = [
-        "product_code",
-        "name",
-        "email",
-        "phone",
-        "university",
-        "device_id",
-        "referral",
-      ]
-      const body = request.only(fillable)
-
-      // Get ReferralData
-      const referralData = await ReferralTrait.getByCode(body.referral)
-
-      // Get Product Data
-      const product = await Product.findBy("code", body.product_code)
-      if (!product) {
-        return response
-          .status(400)
-          .send(ResponseParser.errorResponse("Product not found"))
-      }
-
-      // generate order data
-      const orderData = {
-        order_no: moment()
-          .unix()
-          .toString(),
-        status: orderStatus.WAITING_FOR_PAYMENT,
-        name: body.name,
-        email: body.email,
-        phone: body.phone,
-        university: body.university,
-        device_id: body.device_id,
-        referral: body.referral,
-        marketing_id: parseInt(referralData.creator.id),
-        product_id: product.id,
-        price: referralData ? product.discount_price : price,
-      }
-
+      const orderData = await this.countOrder(request, response)
       const newOrder = await OnlineProductOrder.create(orderData)
 
       RedisHelper.delete("OnlineProductOrder_*")
 
       return response.status(200).send(ResponseParser.apiCreated(newOrder))
     } catch (e) {
-      console.log("e", e)
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())
     }
+  }
+
+  async countOrder(request, response) {
+    const fillable = [
+      "product_code",
+      "name",
+      "email",
+      "phone",
+      "university",
+      "device_id",
+      "referral",
+    ]
+    const body = request.only(fillable)
+
+    // Get ReferralData
+    const referralData = await ReferralTrait.getByCode(body.referral)
+    // Get Product Data
+    const product = await Product.findBy("code", body.product_code)
+    if (!product) {
+      return response
+        .status(400)
+        .send(ResponseParser.errorResponse("Product not found"))
+    }
+
+    // generate order
+    const orderData = {
+      order_no: moment()
+        .unix()
+        .toString(),
+      status: orderStatus.WAITING_FOR_PAYMENT,
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      university: body.university,
+      device_id: body.device_id,
+      referral: undefined,
+      marketing_id: undefined,
+      product_id: product.id,
+      price: product.price,
+    }
+
+    if (referralData && !referralData.isExpired) {
+      orderData.price = product.discount_price
+      orderData.marketing_id = parseInt(referralData.creator.id)
+      orderData.referral = referralData.code
+    }
+
+    return orderData
   }
 
   async update({ request, response, auth }) {

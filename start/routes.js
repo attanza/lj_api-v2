@@ -14,6 +14,7 @@ Route.group(() => {
   Route.post("/reset", "PasswordController.postReset").validator(
     "Auth/GetForgot"
   )
+  Route.get("/client-generate-code", "ClientController.generateToken")
 })
   .prefix("api/v1")
   .namespace("Auth")
@@ -600,11 +601,7 @@ Route.group(() => {
 /**
  * No Auth Middleware
  */
-Route.group(() => {
-  Route.post("online-product-orders", "OnlineProductOrderController.store")
-    .validator("StoreOnlineProductOrder")
-    .middleware("throttle:3")
-})
+Route.group(() => {})
   .prefix("api/v1")
   .formats(["json"])
 
@@ -612,8 +609,16 @@ Route.group(() => {
  * Client Middleware
  */
 Route.group(() => {
-  Route.get("check-target-code/:code", "MarketingTargetController.checkCode")
-  Route.post("post-down-payment", "DownPaymentController.storeFromStudent")
+  // Route.get("check-target-code/:code", "MarketingTargetController.checkCode")
+  // Route.post("post-down-payment", "DownPaymentController.storeFromStudent")
+  Route.post(
+    "online-product-orders",
+    "OnlineProductOrderController.store"
+  ).validator("StoreOnlineProductOrder")
+  Route.post(
+    "online-product-orders-review",
+    "OnlineProductOrderController.review"
+  ).validator("StoreOnlineProductOrder")
 })
   .prefix("api/v1")
-  .middleware(["client"])
+  .middleware(["client", "throttle:3"])

@@ -1,5 +1,4 @@
-let mix = require('laravel-mix')
-
+let mix = require("laravel-mix")
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -13,12 +12,10 @@ let mix = require('laravel-mix')
 
 mix
   .disableSuccessNotifications()
-  .js('resources/assets/js/app.js', 'public/js')
+  .js("resources/assets/js/app.js", "public/js")
   // .sass("resources/assets/sass/app.scss", "public/css")
-  .stylus('resources/assets/styl/app.styl', 'public/css')
-  .styles([
-    'resources/assets/css/doc_style.css'
-  ], 'public/css/all.css')
+  .stylus("resources/assets/styl/app.styl", "public/css")
+  .styles(["resources/assets/css/doc_style.css"], "public/css/all.css")
 // Full API
 // mix.js(src, output);
 // mix.react(src, output); <-- Identical to mix.js(), but registers React Babel compilation.

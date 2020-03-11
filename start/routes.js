@@ -7,6 +7,7 @@ const User = use("App/Models/User")
 
 Route.get("/", "DocumentController.intro")
 Route.get("/docs", "DocumentController.index")
+Route.get("/online-product-order-flow", "DocumentController.onlineOrderFlow")
 
 Route.group(() => {
   Route.post("/login", "LoginController.login").validator("Login")

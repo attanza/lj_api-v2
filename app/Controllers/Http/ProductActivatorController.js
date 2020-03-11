@@ -143,7 +143,51 @@ class ProductActivatorController {
       ])
       return response.status(200).send(ResponseParser.apiDeleted())
     } catch (e) {
-      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async activate({ request, response }) {
+    try {
+      const { code, device_id } = request.post()
+      const activator = await ProductActivator.findBy("code", code)
+      if (!activator) {
+        return response
+          .status(400)
+          .send(ResponseParser.errorResponse("Activation failed"))
+      }
+      if (activator.device_id !== device_id) {
+        return response
+          .status(400)
+          .send(ResponseParser.errorResponse("Activation failed"))
+      }
+      activator.isActive = true
+      await activator.save()
+      return response
+        .status(200)
+        .send(ResponseParser.successResponse(null, "Activation succeed"))
+    } catch (e) {
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async check({ request, response }) {
+    try {
+      const { code, device_id } = request.get()
+      if (!code || !device_id) {
+        return response.status(200).send({ active: false })
+      }
+      const activator = await ProductActivator.findBy("code", code)
+      if (!activator) {
+        return response.status(200).send({ active: false })
+      }
+      if (activator.device_id !== device_id) {
+        return response.status(200).send({ active: false })
+      }
+      return response.status(200).send({ active: true })
+    } catch (e) {
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())
     }

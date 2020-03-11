@@ -643,6 +643,11 @@ Route.group(() => {
     "online-product-orders-review",
     "OnlineProductOrderController.review"
   ).validator("StoreOnlineProductOrder")
+  Route.post(
+    "activator-activate",
+    "ProductActivatorController.activate"
+  ).validator("ActivatorActivate")
+  Route.get("activator-check", "ProductActivatorController.check")
 })
   .prefix("api/v1")
   .middleware(["client", "throttle:3"])

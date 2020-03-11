@@ -40,6 +40,20 @@ class MailHelper {
     })
   }
 
+  async activationCodeMail(ctx) {
+    try {
+      const { order } = ctx
+      await Mail.send("emails.activationCode", ctx, message => {
+        message
+          .to(order.email)
+          .from(from)
+          .subject(`Kode Aktifasi ${order.product.name}`)
+      })
+    } catch (error) {
+      console.log("error", error)
+    }
+  }
+
   async sendError(subject, e) {
     const data = { e }
     Mail.send("emails.errors_mail", data, message => {

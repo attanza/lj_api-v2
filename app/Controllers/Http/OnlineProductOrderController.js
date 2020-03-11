@@ -9,6 +9,16 @@ const { ReferralTrait, ActivityTraits } = use("App/Traits")
 const moment = require("moment")
 const { orderStatus } = use("App/Helpers/Constants")
 
+const fillable = [
+  "product_code",
+  "name",
+  "email",
+  "phone",
+  "university",
+  "device_id",
+  "referral",
+]
+
 class OnlineProductOrderController {
   async index({ request, response }) {
     try {
@@ -70,14 +80,28 @@ class OnlineProductOrderController {
   }
 
   async review({ request, response }) {
-    const orderData = await this.countOrder(request, response)
+    const { orderData } = await this.countOrder(request, response)
     return response.status(200).send(ResponseParser.apiItem(orderData))
   }
 
   async store({ request, response }) {
     try {
-      const orderData = await this.countOrder(request, response)
+      const { orderData, referralData } = await this.countOrder(
+        request,
+        response
+      )
       const newOrder = await OnlineProductOrder.create(orderData)
+      // Update referral by fill in customer info
+      if (referralData) {
+        const body = request.only(fillable)
+        const consumer = {
+          id: newOrder.order_no,
+          email: body.email,
+          date: new Date(),
+          other: JSON.stringify(body),
+        }
+        ReferralTrait.update(referralData._id, { consumer: [consumer] })
+      }
 
       RedisHelper.delete("OnlineProductOrder_*")
 
@@ -89,15 +113,6 @@ class OnlineProductOrderController {
   }
 
   async countOrder(request, response) {
-    const fillable = [
-      "product_code",
-      "name",
-      "email",
-      "phone",
-      "university",
-      "device_id",
-      "referral",
-    ]
     const body = request.only(fillable)
 
     // Get ReferralData
@@ -133,7 +148,7 @@ class OnlineProductOrderController {
       orderData.referral = referralData.code
     }
 
-    return orderData
+    return { orderData, referralData }
   }
 
   async update({ request, response, auth }) {

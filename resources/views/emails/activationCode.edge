@@ -1,0 +1,28 @@
+@layout('emails.master')
+@section('content')
+<div class="content">
+    <p>
+        Dear {{ order.name }},
+    </p>
+  <p>Berikut adalah detail aktifasi aplikasimu :</p>
+  <table
+    class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
+  >
+    <tbody>
+      <tr>
+        <td width="30%">Nama Produk</td>
+        <td width="70%">{{ order.product.name }}</td>
+      </tr>
+      <tr>
+        <td>Kode Produk</td>
+        <td>{{ order.product.code}}</td>
+      </tr>
+      <tr>
+        <td>Kode Aktifasi</td>
+        <td>{{activator.code}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Terimakasih.</p>
+</div>
+@endsection

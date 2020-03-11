@@ -24,6 +24,7 @@ const resources = [
   "DownPayment",
   "Referral",
   "OnlineProductOrder",
+  "ProductActivator",
 ]
 const actions = ["create", "read", "update", "delete"]
 

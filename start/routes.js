@@ -140,6 +140,10 @@ Route.group(() => {
       ])
     )
 
+  Route.post("permissions-bulk", "PermissionController.bulkStore").validator(
+    "StorePermissionBulk"
+  )
+
   /**
    * Me
    */
@@ -513,7 +517,7 @@ Route.group(() => {
     )
 
   /**
-   * Traget Years
+   * Target Years
    */
 
   Route.resource("target-years", "TargetYearController")
@@ -574,6 +578,26 @@ Route.group(() => {
           ["online-product-orders.destroy"],
           ["can:delete-online-product-order"],
         ],
+      ])
+    )
+
+  /**
+   * Product Activator
+   */
+
+  Route.resource("product-activators", "ProductActivatorController")
+    .apiOnly()
+    .validator(
+      new Map([
+        [["product-activators.store"], ["StoreProductActivator"]],
+        [["product-activators.update"], ["UpdateProductActivator"]],
+      ])
+    )
+    .middleware(
+      new Map([
+        [["product-activators.index"], ["can:read-product-activator"]],
+        [["product-activators.update"], ["can:update-product-activator"]],
+        [["product-activators.destroy"], ["can:delete-product-activator"]],
       ])
     )
 })

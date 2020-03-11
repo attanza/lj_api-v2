@@ -5,7 +5,7 @@ const Model = use("Model")
 
 class ProductActivator extends Model {
   order() {
-    return this.belongsTo("App/Models/OnlineProductOrder")
+    return this.belongsTo("App/Models/OnlineProductOrder", "order_id")
   }
 }
 

@@ -14,7 +14,7 @@ class ProductActivatorSchema extends Schema {
       table.string("code", 20).index()
       table.string("device_id", 30)
       table.dateTime("expired_at").nullable()
-      table.boolean("isActive").default(true)
+      table.boolean("isActive").default(false)
       table.timestamps()
     })
   }

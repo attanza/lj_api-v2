@@ -9,6 +9,7 @@ const { orderStatus } = use("App/Helpers/Constants")
 class MidtransController {
   async notifHandler({ request, response }) {
     try {
+      console.log(request.post())
       if (IsMidtransSign(request)) {
         const {
           order_id,

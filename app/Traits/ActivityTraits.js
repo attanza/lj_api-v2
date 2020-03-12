@@ -38,7 +38,7 @@ class ActivityTraits {
 
       return true
     } catch (e) {
-      console.log(JSON.stringify(e.response.data))
+      console.log(JSON.stringify(e))
       ErrorLog(request, e)
     }
     // }

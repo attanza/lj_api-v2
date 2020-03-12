@@ -10,6 +10,7 @@ const AesUtil = require("./AesUtil")
 const ErrorLog = require("./ErrorLog")
 const GetRequestQuery = require("./GetRequestQuery")
 const parseMicroApiQuery = require("./parseMicroApiQuery")
+const IsMidtransSign = require("./IsMidtransSign")
 
 module.exports = {
   Slug,
@@ -24,4 +25,5 @@ module.exports = {
   ErrorLog,
   GetRequestQuery,
   parseMicroApiQuery,
+  IsMidtransSign,
 }

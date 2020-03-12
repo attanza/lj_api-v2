@@ -20,6 +20,7 @@ class OnlineProductOrderSchema extends Schema {
       table.string("referral", 50).index()
       table.string("status", 25).index()
       table.integer("price")
+      table.text("payment_detail").nullable()
       table
         .integer("marketing_id")
         .unsigned()

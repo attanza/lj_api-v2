@@ -11,6 +11,7 @@ const MarketingAction = use("App/Models/MarketingAction")
 const Database = use("Database")
 const MarketingTarget = use("App/Models/MarketingTarget")
 const Schedulle = use("App/Models/Schedulle")
+const Product = use("App/Models/Product")
 
 class ComboDataController {
   async index({ request, response }) {
@@ -23,6 +24,11 @@ class ComboDataController {
 
       case "Marketing": {
         const data = await this.getMarketings()
+        return response.status(200).send(data)
+      }
+
+      case "Product": {
+        const data = await this.getProducts()
         return response.status(200).send(data)
       }
 
@@ -89,6 +95,23 @@ class ComboDataController {
     return parsed
   }
 
+  async getProducts() {
+    let redisKey = "University_Combo"
+    let cached = await RedisHelper.get(redisKey)
+
+    if (cached != null) {
+      return cached
+    }
+    const data = await Product.query()
+      .select("id", "name", "code")
+      .orderBy("name")
+      .limit(1000)
+      .fetch()
+    await RedisHelper.set(redisKey, data)
+    let parsed = data.toJSON()
+    return parsed
+  }
+
   async getMarketings() {
     let redisKey = "Marketing_Combo"
     let cached = await RedisHelper.get(redisKey)
@@ -104,6 +127,7 @@ class ComboDataController {
       })
       .where("is_active", 1)
       .orderBy("name")
+      .limit(1000)
       .fetch()
     await RedisHelper.set(redisKey, data)
     let parsed = data.toJSON()
@@ -129,7 +153,7 @@ class ComboDataController {
     }
     const data = await User.query()
       .select("id", "name")
-      .where(function () {
+      .where(function() {
         this.whereHas("roles", builder => {
           builder.where("role_id", 4)
         })

@@ -23,6 +23,7 @@ const resources = [
   "DownPayment",
   "Referral",
   "OnlineProductOrder",
+  "ProductActivator",
 ]
 
 const otherPermissions = ["Clear Redis"]

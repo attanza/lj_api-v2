@@ -7,7 +7,7 @@ const Product = use("App/Models/Product")
 class Client {
   async handle({ request, response }, next) {
     try {
-      const { lj_token } = request.headers()
+      const lj_token = request.headers()["x-lj-token"]
       if (!lj_token) {
         console.log("no token")
         return response.status(401).send(ResponseParser.unauthorizedResponse())

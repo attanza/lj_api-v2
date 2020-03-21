@@ -8,7 +8,7 @@ const OnlineProductOrder = use("App/Models/OnlineProductOrder")
 const { ReferralTrait, ActivityTraits } = use("App/Traits")
 const moment = require("moment")
 const { orderStatus } = use("App/Helpers/Constants")
-
+const randomstring = require("randomstring")
 const fillable = [
   "product_code",
   "name",
@@ -90,6 +90,7 @@ class OnlineProductOrderController {
         request,
         response
       )
+      console.log(orderData)
       const newOrder = await OnlineProductOrder.create(orderData)
       // Update referral by fill in customer info
       if (referralData) {
@@ -127,9 +128,7 @@ class OnlineProductOrderController {
 
     // generate order
     const orderData = {
-      order_no: moment()
-        .unix()
-        .toString(),
+      order_no: await this.generateOrderNo(),
       status: orderStatus.WAITING_FOR_PAYMENT,
       name: body.name,
       email: body.email,
@@ -149,6 +148,24 @@ class OnlineProductOrderController {
     }
 
     return { orderData, referralData }
+  }
+
+  async generateOrderNo() {
+    let retry = 1
+    let orderNo = ""
+    while (retry !== 0) {
+      console.log("retry", retry)
+      orderNo = randomstring.generate({
+        length: 12,
+        charset: "alphanumeric",
+        capitalization: "lowercase",
+      })
+      const order = await OnlineProductOrder.findBy("order_no", orderNo)
+      if (!order) {
+        retry = 0
+        return orderNo
+      }
+    }
   }
 
   async update({ request, response, auth }) {

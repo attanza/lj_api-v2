@@ -10,59 +10,59 @@ class MidtransController {
   async notifHandler({ request, response }) {
     try {
       console.log(request.post())
-      if (IsMidtransSign(request)) {
-        const {
-          order_id,
-          status_code,
-          payment_type,
-          transaction_status,
-        } = request.post()
-        if (status_code === "200") {
-          // Check if order exists
-          const order = await Order.query()
-            .where("order_no", order_id)
-            .where("status", orderStatus.WAITING_FOR_PAYMENT)
-            .first()
-          if (!order) {
-            console.log("Order not found")
-            return this.sendResponse(response)
-          }
+      // if (IsMidtransSign(request)) {
+      const {
+        order_id,
+        status_code,
+        payment_type,
+        transaction_status,
+      } = request.post()
+      if (status_code === "200") {
+        // Check if order exists
+        const order = await Order.query()
+          .where("order_no", order_id)
+          .where("status", orderStatus.WAITING_FOR_PAYMENT)
+          .first()
+        if (!order) {
+          console.log("Order not found")
+          return this.sendResponse(response)
+        }
 
-          // Check for success status
-          const successStatus = ["capture", "settlement"]
-          if (successStatus.includes(transaction_status)) {
-            console.log("Order Completed")
-            order.status = orderStatus.COMPLETED
-            order.payment_with = payment_type
-            order.payment_detail = JSON.stringify(request.post())
-            await order.save()
-            this.generateActivator(order)
-            return this.sendResponse(response)
-          }
-
-          // Check for failure status
-          const failureStatus = ["deny", "failure"]
-          if (failureStatus.includes(transaction_status)) {
-            console.log("Order PAYMENT_FAILED")
-            order.status = orderStatus.PAYMENT_FAILED
-          }
-
-          // Check for cancel status
-          if (transaction_status === "cancel") {
-            console.log("Order CANCELED")
-            order.status = orderStatus.CANCELED
-          }
-
-          // Check for expire status
-          if (transaction_status === "expire") {
-            console.log("Order PAYMENT_EXPIRED")
-            order.status = orderStatus.PAYMENT_EXPIRED
-          }
+        // Check for success status
+        const successStatus = ["capture", "settlement"]
+        if (successStatus.includes(transaction_status)) {
+          console.log("Order Completed")
+          order.status = orderStatus.COMPLETED
+          order.payment_with = payment_type
           order.payment_detail = JSON.stringify(request.post())
           await order.save()
+          const activator = await this.generateActivator(order)
+          return this.sendResponse(response, activator)
         }
+
+        // Check for failure status
+        const failureStatus = ["deny", "failure"]
+        if (failureStatus.includes(transaction_status)) {
+          console.log("Order PAYMENT_FAILED")
+          order.status = orderStatus.PAYMENT_FAILED
+        }
+
+        // Check for cancel status
+        if (transaction_status === "cancel") {
+          console.log("Order CANCELED")
+          order.status = orderStatus.CANCELED
+        }
+
+        // Check for expire status
+        if (transaction_status === "expire") {
+          console.log("Order PAYMENT_EXPIRED")
+          order.status = orderStatus.PAYMENT_EXPIRED
+        }
+        order.payment_detail = JSON.stringify(request.post())
+        await order.save()
       }
-      console.log("Signature not verified")
+      // }
+      // console.log("Signature not verified")
       return this.sendResponse(response)
     } catch (e) {
       console.log("e", e)
@@ -71,11 +71,11 @@ class MidtransController {
     }
   }
 
-  sendResponse(response) {
+  sendResponse(response, data) {
     return response
       .status(200)
       .send(
-        ResponseParser.successResponse(null, "Midtrans notification handler")
+        ResponseParser.successResponse(data, "Midtrans notification handler")
       )
   }
 
@@ -91,6 +91,7 @@ class MidtransController {
       order: order.toJSON(),
       activator: activator.toJSON(),
     })
+    return activator.toJSON()
   }
 }
 

@@ -24,7 +24,7 @@ class MidtransController {
         // Check if order exists
         const order = await Order.query()
           .where("order_no", order_id)
-          // .where("status", orderStatus.WAITING_FOR_PAYMENT)
+          .where("status", orderStatus.WAITING_FOR_PAYMENT)
           .first()
 
         if (!order) {

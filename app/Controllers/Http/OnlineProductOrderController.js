@@ -90,7 +90,6 @@ class OnlineProductOrderController {
         request,
         response
       )
-      console.log(orderData)
       const newOrder = await OnlineProductOrder.create(orderData)
       // Update referral by fill in customer info
       if (referralData) {
@@ -128,7 +127,7 @@ class OnlineProductOrderController {
 
     // generate order
     const orderData = {
-      order_no: Math.floor(Date.now() / 1000),
+      order_no: Math.floor(Date.now() / 1000).toString(),
       status: orderStatus.WAITING_FOR_PAYMENT,
       name: body.name,
       email: body.email,

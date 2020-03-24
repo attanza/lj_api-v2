@@ -20,7 +20,6 @@ const providers = [
   "@adonisjs/redis/providers/RedisProvider",
   "@adonisjs/framework/providers/ViewProvider",
   "@adonisjs/drive/providers/DriveProvider",
-  "@adonisjs/mail/providers/MailProvider",
   "@adonisjs/session/providers/SessionProvider",
   "adonis-acl/providers/AclProvider",
   "adonis-scheduler/providers/SchedulerProvider",

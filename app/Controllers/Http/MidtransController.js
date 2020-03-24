@@ -1,7 +1,11 @@
 "use strict"
-const { ResponseParser, MailHelper, ErrorLog, IsMidtransSign } = use(
-  "App/Helpers"
-)
+const {
+  ResponseParser,
+  MailHelper,
+  ErrorLog,
+  IsMidtransSign,
+  NodeMailer,
+} = use("App/Helpers")
 const { ProductActivatorTrait } = use("App/Traits")
 const Order = use("App/Models/OnlineProductOrder")
 const { orderStatus } = use("App/Helpers/Constants")
@@ -9,7 +13,6 @@ const { orderStatus } = use("App/Helpers/Constants")
 class MidtransController {
   async notifHandler({ request, response }) {
     try {
-      console.log(request.post())
       // if (IsMidtransSign(request)) {
       const {
         order_id,
@@ -21,8 +24,9 @@ class MidtransController {
         // Check if order exists
         const order = await Order.query()
           .where("order_no", order_id)
-          .where("status", orderStatus.WAITING_FOR_PAYMENT)
+          // .where("status", orderStatus.WAITING_FOR_PAYMENT)
           .first()
+
         if (!order) {
           console.log("Order not found")
           return this.sendResponse(response)
@@ -86,11 +90,15 @@ class MidtransController {
       order_id: order.id,
       device_id: order.device_id,
     })
-    // Send activation key via email
-    MailHelper.activationCodeMail({
-      order: order.toJSON(),
-      activator: activator.toJSON(),
+    const jsonOrder = order.toJSON()
+    jsonOrder.activator = activator.toJSON()
+    await NodeMailer.sendMail({
+      to: order.email,
+      subject: `Aktifasi Produk Yapindo`,
+      template: "productActivationCode",
+      data: jsonOrder,
     })
+
     return activator.toJSON()
   }
 }

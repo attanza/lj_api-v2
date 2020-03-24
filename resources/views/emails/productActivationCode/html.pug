@@ -1,0 +1,73 @@
+doctype html 
+html(lang="en")
+  head
+    title Langsung Jalan
+    style.
+      html {
+        box-sizing: border-box;
+        font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+      }
+      .container {
+        margin: 0 auto;
+        position: relative;
+      }
+
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+
+      td,
+      th {
+        padding: 0;
+        text-align: left;
+      }
+
+      @media screen and (min-width: 1088px) {
+        .container {
+          max-width: 960px;
+          width: 960px;
+        }
+      }
+
+      @media screen and (min-width: 1280px) {
+        .container {
+          max-width: 1152px;
+          width: 1152px;
+        }
+      }
+
+      @media screen and (min-width: 1472px) {
+        .container {
+          max-width: 1344px;
+          width: 1344px;
+        }
+      }
+
+      .table {
+        background-color: white;
+        color: #363636;
+      }
+
+      .table td,
+      .table th {
+        border: 1px solid #dbdbdb;
+        border-width: 0 0 1px;
+        padding: 0.5em 0.75em;
+        vertical-align: top;
+      }
+  body
+    .container
+      p Hi #{name},
+      p Berikut nomor aktifasi produk yang kamu pilih:
+      table.table
+        tr
+          td No Order
+          td #{order_no}
+        tr
+          td Produk
+          td #{product.name}
+        tr
+          td Kode Aktifasi
+          td #{activator.code}
+      p Terimakasih

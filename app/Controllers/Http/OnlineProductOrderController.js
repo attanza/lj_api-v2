@@ -128,7 +128,7 @@ class OnlineProductOrderController {
 
     // generate order
     const orderData = {
-      order_no: await this.generateOrderNo(),
+      order_no: Math.floor(Date.now() / 1000),
       status: orderStatus.WAITING_FOR_PAYMENT,
       name: body.name,
       email: body.email,

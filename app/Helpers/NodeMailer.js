@@ -45,6 +45,7 @@ class NodeMailer {
           ...data,
         },
       })
+      .then(() => console.log("Mail sent"))
       .catch(console.error)
   }
 }

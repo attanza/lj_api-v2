@@ -40,8 +40,8 @@ class MidtransController {
           order.payment_with = payment_type
           order.payment_detail = JSON.stringify(request.post())
           await order.save()
-          const activator = await this.generateActivator(order)
-          return this.sendResponse(response, activator)
+          await this.generateActivator(order)
+          return this.sendResponse(response, null)
         }
 
         // Check for failure status

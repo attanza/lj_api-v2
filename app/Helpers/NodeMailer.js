@@ -45,7 +45,6 @@ class NodeMailer {
           ...data,
         },
       })
-      .then(console.log)
       .catch(console.error)
   }
 }

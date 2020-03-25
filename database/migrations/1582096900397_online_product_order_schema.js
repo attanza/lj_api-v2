@@ -29,6 +29,7 @@ class OnlineProductOrderSchema extends Schema {
         .integer("product_id")
         .unsigned()
         .index()
+      table.timestamp("date")
       table.timestamps()
     })
   }

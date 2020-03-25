@@ -134,3 +134,19 @@ Factory.blueprint("App/Models/MarketingTargetContact", faker => {
     email: faker.email(),
   }
 })
+
+Factory.blueprint("App/Models/OnlineProductOrder", faker => {
+  return {
+    order_no: faker.bb_pin(),
+    name: faker.name(),
+    email: faker.email(),
+    phone: faker.phone(),
+    university: faker.company(),
+    device_id: faker.bb_pin(),
+    status: "COMPLETED",
+    price: faker.integer({ min: 100000, max: 250000 }),
+    marketing_id: faker.integer({ min: 1, max: 4 }),
+    product_id: faker.integer({ min: 1, max: 3 }),
+    date: faker.date({ year: 2020 }),
+  }
+})

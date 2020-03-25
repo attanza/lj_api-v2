@@ -4,6 +4,9 @@
 const Model = use("Model")
 
 class OnlineProductOrder extends Model {
+  static get dates() {
+    return super.dates.concat(["date"])
+  }
   marketing() {
     return this.belongsTo("App/Models/User", "marketing_id")
   }

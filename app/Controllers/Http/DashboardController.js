@@ -7,16 +7,17 @@ const Product = use("App/Models/Product")
 const University = use("App/Models/University")
 const Order = use("App/Models/OnlineProductOrder")
 const Database = use("Database")
+const moment = require("moment")
 class DashboardController {
   async index({ response }) {
     const redisKey = "Dashboard_Data"
-    // const cached = await RedisHelper.get(redisKey)
-    // if (cached) {
-    //   return response.status(200).send(cached)
-    // }
+    const cached = await RedisHelper.get(redisKey)
+    if (cached) {
+      return response.status(200).send(cached)
+    }
 
     const dashboard = await this.storeDashboardData()
-    // await RedisHelper.set(redisKey, dashboard)
+    await RedisHelper.set(redisKey, dashboard)
     return response.status(200).send(dashboard)
   }
 
@@ -40,11 +41,20 @@ class DashboardController {
     // Total Universities
     const totalUniversities = await University.query().count("* as total")
 
-    // Orders
-    const orders = await Database.raw(
-      "select id, price, YEAR(date), MONTH(date) from online_product_orders GROUP BY YEAR(date)"
-    )
-    console.log("orders", JSON.stringify(orders))
+    // Online Orders
+    const startYear = moment()
+      .startOf("year")
+      .format("YYYY-MM-DD HH:mm:ss")
+    const endYear = moment()
+      .endOf("year")
+      .format("YYYY-MM-DD HH:mm:ss")
+
+    const onlineOrders = await Order.query()
+      .select(Database.raw("sum(price) as total, MONTH(date) as month"))
+      .groupBy("month")
+      .whereBetween("date", [startYear, endYear])
+      .orderBy("month")
+      .fetch()
 
     const dashboardDetails = {
       total_marketings: totalMarketings[0].total,
@@ -58,7 +68,8 @@ class DashboardController {
 
     const redisKey = "Dashboard_Data"
     await RedisHelper.delete(redisKey)
-    return dashboard
+    const jsonDashboard = dashboard.toJSON()
+    return { ...jsonDashboard, onlineOrders: onlineOrders.toJSON() }
   }
 }
 

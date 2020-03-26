@@ -9,6 +9,7 @@ const GetRequestQuery = require("./GetRequestQuery")
 const parseMicroApiQuery = require("./parseMicroApiQuery")
 const IsMidtransSign = require("./IsMidtransSign")
 const NodeMailer = require("./NodeMailer")
+const MailJet = require("./MailJet")
 
 module.exports = {
   Slug,
@@ -22,4 +23,5 @@ module.exports = {
   parseMicroApiQuery,
   IsMidtransSign,
   NodeMailer,
+  MailJet,
 }

@@ -5,6 +5,7 @@ const {
   ErrorLog,
   IsMidtransSign,
   NodeMailer,
+  MailJet,
 } = use("App/Helpers")
 const { ProductActivatorTrait } = use("App/Traits")
 const Order = use("App/Models/OnlineProductOrder")
@@ -92,14 +93,41 @@ class MidtransController {
     })
     const jsonOrder = order.toJSON()
     jsonOrder.activator = activator.toJSON()
-    await NodeMailer.sendMail({
-      to: order.email,
-      subject: `Aktifasi Produk Yapindo`,
-      template: "productActivationCode",
-      data: jsonOrder,
-    })
+    // await NodeMailer.sendMail({
+    //   to: order.email,
+    //   subject: `Aktifasi Produk Yapindo`,
+    //   template: "productActivationCode",
+    //   data: jsonOrder,
+    // })
+    const { name, email } = jsonOrder
+    const subject = "Kode Aktifasi Produk Yapindo"
+    const content = this.getContent(jsonOrder)
+    MailJet({ name, email, subject, content })
 
     return activator.toJSON()
+  }
+
+  getContent(order) {
+    return `
+    <p>Halo ${order.name},</p>
+<p>Berikut nomor aktifasi produk yang kamu pilih:</p>
+<table>
+  <tr>
+    <td>No Order</td>
+    <td>${order.order_no}</td>
+  </tr>
+  <tr>
+    <td>Produk</td>
+    <td>${order.product.name}</td>
+  </tr>
+  <tr>
+    <td>Kode Aktifasi</td>
+    <td>${order.activator.code}</td>
+  </tr>
+</table>
+
+<p>Terimakasih</p>
+    `
   }
 }
 

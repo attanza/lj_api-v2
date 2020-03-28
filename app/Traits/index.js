@@ -5,7 +5,6 @@ const SchedulleQueryTrait = require("./SchedulleQueryTrait")
 const StudyProgramQuery = require("./StudyProgramQuery")
 const CheckExist = require("./CheckExist")
 const ReferralTrait = require("./ReferralTrait")
-const ProductActivatorTrait = require("./ProductActivatorTrait")
 
 module.exports = {
   ActivityTraits,
@@ -15,5 +14,4 @@ module.exports = {
   StudyProgramQuery,
   CheckExist,
   ReferralTrait,
-  ProductActivatorTrait,
 }

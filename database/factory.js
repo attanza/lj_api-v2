@@ -147,6 +147,9 @@ Factory.blueprint("App/Models/OnlineProductOrder", faker => {
     price: faker.integer({ min: 100000, max: 250000 }),
     marketing_id: faker.integer({ min: 1, max: 4 }),
     product_id: faker.integer({ min: 1, max: 3 }),
-    date: faker.date({ year: 2020 }),
+    paid_at: faker.date({ year: 2020 }),
+    device_id: faker.android_id(),
+    activation_code: faker.string({ length: 12, casing: "lower" }),
+    is_disabled: false,
   }
 })

@@ -581,26 +581,6 @@ Route.group(() => {
         ],
       ])
     )
-
-  /**
-   * Product Activator
-   */
-
-  Route.resource("product-activators", "ProductActivatorController")
-    .apiOnly()
-    .validator(
-      new Map([
-        [["product-activators.store"], ["StoreProductActivator"]],
-        [["product-activators.update"], ["UpdateProductActivator"]],
-      ])
-    )
-    .middleware(
-      new Map([
-        [["product-activators.index"], ["can:read-product-activator"]],
-        [["product-activators.update"], ["can:update-product-activator"]],
-        [["product-activators.destroy"], ["can:delete-product-activator"]],
-      ])
-    )
 })
   .prefix("api/v1")
   .formats(["json"])
@@ -634,8 +614,6 @@ Route.group(() => {})
  * Client Middleware
  */
 Route.group(() => {
-  // Route.get("check-target-code/:code", "MarketingTargetController.checkCode")
-  // Route.post("post-down-payment", "DownPaymentController.storeFromStudent")
   Route.post(
     "online-product-orders",
     "OnlineProductOrderController.store"
@@ -644,11 +622,11 @@ Route.group(() => {
     "online-product-orders-review",
     "OnlineProductOrderController.review"
   ).validator("StoreOnlineProductOrder")
-  Route.post(
-    "activator-activate",
-    "ProductActivatorController.activate"
-  ).validator("ActivatorActivate")
-  Route.get("activator-check", "ProductActivatorController.check")
+  Route.post("product-activate", "OnlineProductOrderController.activate")
+  Route.get(
+    "online-product-orders/:order_no/:device_id",
+    "OnlineProductOrderController.getByOrderNo"
+  )
 })
   .prefix("api/v1")
   .middleware(["client", "throttle:3"])

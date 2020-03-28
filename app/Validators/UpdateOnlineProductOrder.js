@@ -10,7 +10,6 @@ class UpdateOnlineProductOrder {
       email: "email",
       phone: "string|max:30",
       university: "string|max:100",
-      referral: "string|max:50",
       status:
         "string|in:WAITING_FOR_PAYMENT,PAYMENT_EXPIRED,PAYMENT_FAILED,COMPLETED,CANCELED",
       marketing_id: "integer|exists:users,id",

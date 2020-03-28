@@ -8,8 +8,9 @@ const ErrorLog = require("./ErrorLog")
 const GetRequestQuery = require("./GetRequestQuery")
 const parseMicroApiQuery = require("./parseMicroApiQuery")
 const IsMidtransSign = require("./IsMidtransSign")
-const NodeMailer = require("./NodeMailer")
 const MailJet = require("./MailJet")
+const Midtrans = require("./Midtrans")
+const generateActivator = require("./generateActivator")
 
 module.exports = {
   Slug,
@@ -22,6 +23,7 @@ module.exports = {
   GetRequestQuery,
   parseMicroApiQuery,
   IsMidtransSign,
-  NodeMailer,
   MailJet,
+  Midtrans,
+  generateActivator,
 }

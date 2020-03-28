@@ -1,14 +1,16 @@
 "use strict"
 
-const { ResponseParser, ErrorLog, RedisHelper, GetRequestQuery } = use(
-  "App/Helpers"
-)
+const {
+  ResponseParser,
+  ErrorLog,
+  RedisHelper,
+  GetRequestQuery,
+  Midtrans,
+} = use("App/Helpers")
 const Product = use("App/Models/Product")
 const OnlineProductOrder = use("App/Models/OnlineProductOrder")
 const { ReferralTrait, ActivityTraits } = use("App/Traits")
-const moment = require("moment")
 const { orderStatus } = use("App/Helpers/Constants")
-const randomstring = require("randomstring")
 const fillable = [
   "product_code",
   "name",
@@ -149,24 +151,6 @@ class OnlineProductOrderController {
     return { orderData, referralData }
   }
 
-  async generateOrderNo() {
-    let retry = 1
-    let orderNo = ""
-    while (retry !== 0) {
-      console.log("retry", retry)
-      orderNo = randomstring.generate({
-        length: 12,
-        charset: "alphanumeric",
-        capitalization: "lowercase",
-      })
-      const order = await OnlineProductOrder.findBy("order_no", orderNo)
-      if (!order) {
-        retry = 0
-        return orderNo
-      }
-    }
-  }
-
   async update({ request, response, auth }) {
     try {
       const fillable = [
@@ -218,6 +202,69 @@ class OnlineProductOrderController {
       await RedisHelper.set(redisKey, parsed)
       return response.status(200).send(parsed)
     } catch (e) {
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async getByOrderNo({ request, response }) {
+    try {
+      const { order_no, device_id } = request.params
+      if (!order_no || !device_id) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+      let order = await OnlineProductOrder.query()
+        .where("order_no", order_no)
+        .where("device_id", device_id)
+        .first()
+
+      if (!order) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+
+      if (order.status === orderStatus.WAITING_FOR_PAYMENT) {
+        const resp = await Midtrans.getOrder(order.order_no)
+        console.log("resp.status_code", resp.status_code)
+        const successStatus = ["200", "201"]
+        if (!successStatus.includes(resp.status_code)) {
+          order.status = orderStatus.PAYMENT_FAILED
+          await order.save()
+        }
+        order = await Midtrans.statusActions(resp, order)
+      }
+
+      return response.status(200).send(ResponseParser.apiItem(order.toJSON()))
+    } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async activate({ request, response }) {
+    try {
+      const { device_id, activation_code, order_no } = request.post()
+      console.log({ device_id, activation_code, order_no })
+      if (!device_id || !activation_code || !order_no) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+      const order = await OnlineProductOrder.query()
+        .where("device_id", device_id)
+        .where("activation_code", activation_code)
+        .where("order_no", order_no)
+        .where("status", "COMPLETED")
+        .first()
+
+      if (!order) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+
+      order.is_disabled = false
+      await order.save()
+
+      return response.status(200).send(ResponseParser.apiItem(order.toJSON()))
+    } catch (error) {
+      console.log("e", e)
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())
     }

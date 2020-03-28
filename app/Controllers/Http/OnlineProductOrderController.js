@@ -244,7 +244,6 @@ class OnlineProductOrderController {
   async activate({ request, response }) {
     try {
       const { device_id, activation_code, order_no } = request.post()
-      console.log({ device_id, activation_code, order_no })
       if (!device_id || !activation_code || !order_no) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }

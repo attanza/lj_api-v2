@@ -50,9 +50,10 @@ class DashboardController {
       .format("YYYY-MM-DD HH:mm:ss")
 
     const onlineOrders = await Order.query()
-      .select(Database.raw("sum(price) as total, MONTH(date) as month"))
+      .select(Database.raw("sum(price) as total, MONTH(paid_at) as month"))
       .groupBy("month")
-      .whereBetween("date", [startYear, endYear])
+      .whereBetween("paid_at", [startYear, endYear])
+      .where("is_disabled", false)
       .orderBy("month")
       .fetch()
 

@@ -107,7 +107,7 @@ class OnlineProductOrderController {
 
       RedisHelper.delete("OnlineProductOrder_*")
 
-      return response.status(200).send(ResponseParser.apiCreated(newOrder))
+      return response.status(201).send(ResponseParser.apiCreated(newOrder))
     } catch (e) {
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())

@@ -96,9 +96,23 @@ class PermissionController {
       let { permissions } = request.post()
       console.log("permissions", permissions)
       const permissionData = []
-      // TODO: check if permission is exists
+
+      const permissionIds = await Permission.query()
+        .whereIn("name", permissions)
+        .pluck("id")
+
+      if (permissionIds && permissionIds.length > 0) {
+        return response
+          .status(422)
+          .send(
+            ResponseParser.apiValidationFailed(
+              null,
+              "One or more permissions is already exists"
+            )
+          )
+      }
+      console.log("permissionIds", permissionIds)
       permissions.map(p => permissionData.push({ name: p }))
-      console.log("permissionData", permissionData)
       const data = await Permission.createMany(permissionData)
       console.log("data", data)
       await RedisHelper.delete("Permission_*")

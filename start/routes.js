@@ -606,7 +606,9 @@ Route.group(() => {
 /**
  * No Auth Middleware
  */
-Route.group(() => {})
+Route.group(() => {
+  Route.get("/check-target-code/:code", "MarketingTargetController.checkCode")
+})
   .prefix("api/v1")
   .formats(["json"])
 

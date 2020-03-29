@@ -69,11 +69,13 @@ Factory.blueprint("App/Models/Schedulle", faker => {
 })
 
 Factory.blueprint("App/Models/Product", faker => {
+  const price = faker.integer({ min: 100000, max: 300000 })
   return {
     code: faker.bb_pin(),
     name: faker.sentence({ words: 3 }),
     measurement: faker.sentence({ words: 1 }),
-    price: faker.integer({ min: 100000, max: 300000 }),
+    price,
+    price: price + (price + 0.1),
     description: faker.sentence({ words: 4 }),
   }
 })

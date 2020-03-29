@@ -47,7 +47,7 @@ class MarketingTargetController {
       const data = await MarketingTarget.query()
         .with("study.studyName")
         .with("study.university")
-        .where(function () {
+        .where(function() {
           if (search && search != "") {
             this.where("code", "like", `%${search}%`)
             this.orWhere("angkatan", "like", `%${search}%`)
@@ -240,7 +240,7 @@ class MarketingTargetController {
         .send(ResponseParser.errorResponse("Kode tidak valid"))
     }
     await target.loadMany(["study.university", "study.studyName"])
-    return response.status(200).send(target)
+    return response.status(200).send(ResponseParser.apiItem(target))
   }
 }
 

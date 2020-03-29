@@ -67,11 +67,11 @@ class ResponseParser {
     return { meta }
   }
 
-  apiValidationFailed(data) {
+  apiValidationFailed(data, message) {
     const output = {
       meta: {
         status: 422,
-        message: "Validation failed",
+        message: message || "Validation failed",
       },
       details: data,
     }

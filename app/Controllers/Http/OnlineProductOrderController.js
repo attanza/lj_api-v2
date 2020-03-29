@@ -142,6 +142,8 @@ class OnlineProductOrderController {
       price: product.price,
     }
 
+    console.log("referralData", referralData)
+
     if (referralData && !referralData.isExpired) {
       orderData.price = product.discount_price
       orderData.marketing_id = parseInt(referralData.creator.id)

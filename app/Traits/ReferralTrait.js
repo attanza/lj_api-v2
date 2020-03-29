@@ -58,7 +58,7 @@ class ReferralTrait {
       const resp = await axios
         .get(`${REFERRAL_URL}/${code}`)
         .then(res => res.data)
-      return resp
+      return resp.data
     } catch (error) {
       console.log("error", JSON.stringify(error))
       return null

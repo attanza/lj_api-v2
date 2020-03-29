@@ -243,14 +243,21 @@ class OnlineProductOrderController {
 
   async activate({ request, response }) {
     try {
-      const { device_id, activation_code } = request.post()
-      if (!device_id || !activation_code) {
+      const { device_id, activation_code, order_no } = request.post()
+      if (!activation_code) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }
       const order = await OnlineProductOrder.query()
-        .where("device_id", device_id)
-        .where("activation_code", activation_code)
-        .where("status", "COMPLETED")
+        .where(function() {
+          this.where("activation_code", activation_code)
+          if (device_id) {
+            this.where("device_id", device_id)
+          }
+          if (order_no) {
+            this.where("order_no", order_no)
+          }
+          this.where("status", "COMPLETED")
+        })
         .first()
 
       if (!order) {
@@ -261,7 +268,7 @@ class OnlineProductOrderController {
       await order.save()
 
       return response.status(200).send(ResponseParser.apiItem(order.toJSON()))
-    } catch (error) {
+    } catch (e) {
       console.log("e", e)
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())

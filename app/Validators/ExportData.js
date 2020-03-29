@@ -11,8 +11,8 @@ class StorePermission {
       sort_mode: "string|in:asc,desc",
       limit: "integer",
       range_by: "string|max:20",
-      range_start: "string|max:20",
-      range_end: "string|max:20",
+      // range_start: "string|max:20",
+      // range_end: "string|max:20",
     }
   }
 

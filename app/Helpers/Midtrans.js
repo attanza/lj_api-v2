@@ -3,15 +3,18 @@ const axios = require("axios")
 const Env = use("Env")
 const { orderStatus } = require("./Constants")
 const generateActivator = require("./generateActivator")
+
+const isProd = Env.get("NODE_ENV") === "production"
+const MIDTRANS_URL = isProd
+  ? Env.get("MIDTRANS_URL")
+  : Env.get("MIDTRANS_DEV_URL")
+
 class Midtrans {
   setAxiosHeaders() {
-    const isProd = Env.get("NODE_ENV") === "production"
     const midtransServerKey = isProd
       ? Env.get("MIDTRANS_SERVER_KEY")
       : Env.get("MIDTRANS_DEV_SERVER_KEY")
-    axios.defaults.baseURL = isProd
-      ? Env.get("MIDTRANS_URL")
-      : Env.get("MIDTRANS_DEV_URL")
+
     const token = Buffer.from(`${midtransServerKey}:`).toString("base64")
     axios.defaults.headers.common["Authorization"] = `Basic ${token}`
     axios.defaults.headers.post["Content-Type"] = "application/json"
@@ -23,7 +26,7 @@ class Midtrans {
     try {
       this.setAxiosHeaders()
       const resp = await axios
-        .get(`/v2/${order_id}/status`)
+        .get(`${MIDTRANS_URL}/v2/${order_id}/status`)
         .then(res => res.data)
       return resp
     } catch (e) {

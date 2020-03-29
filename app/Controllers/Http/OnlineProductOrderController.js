@@ -243,14 +243,13 @@ class OnlineProductOrderController {
 
   async activate({ request, response }) {
     try {
-      const { device_id, activation_code, order_no } = request.post()
-      if (!device_id || !activation_code || !order_no) {
+      const { device_id, activation_code } = request.post()
+      if (!device_id || !activation_code) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }
       const order = await OnlineProductOrder.query()
         .where("device_id", device_id)
         .where("activation_code", activation_code)
-        .where("order_no", order_no)
         .where("status", "COMPLETED")
         .first()
 

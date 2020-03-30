@@ -440,6 +440,7 @@ Route.group(() => {
    */
   Route.resource("products", "ProductController")
     .apiOnly()
+    .except(["show"])
     .validator(
       new Map([
         [["products.store", "products.update"], ["StoreProduct"]],

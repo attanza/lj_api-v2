@@ -454,7 +454,6 @@ Route.group(() => {
         [["products.destroy"], ["can:delete-product"]],
       ])
     )
-  Route.get("/product/:code/price", "ProductController.getPrice")
 
   /**
    * Error Log
@@ -559,6 +558,7 @@ Route.group(() => {
       ])
     )
 
+
   /**
    * Online Product Order
    */
@@ -608,6 +608,9 @@ Route.group(() => {
  */
 Route.group(() => {
   Route.get("/check-target-code/:code", "MarketingTargetController.checkCode")
+
+  Route.get("/products/:id", "ProductController.show")
+
 })
   .prefix("api/v1")
   .formats(["json"])

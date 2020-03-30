@@ -115,7 +115,7 @@ class ProductController {
       if (cached) {
         return response.status(200).send(cached)
       }
-      const data = await Product.find(id)
+      const data = await Product.query().where('id', id).orWhere('code', id).first()
       if (!data) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }

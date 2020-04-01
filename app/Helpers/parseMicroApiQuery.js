@@ -13,6 +13,7 @@ module.exports = query => {
     end_date: "dateEnd",
     sort_by: "sortBy",
     sort_mode: "sortMode",
+    select: "select"
   }
   let queryString = "?"
   Object.keys(query).map(key => {

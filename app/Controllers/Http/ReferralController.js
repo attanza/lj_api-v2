@@ -18,7 +18,6 @@ class ReferralController {
         return cache
       }
       const data = await ReferralTrait.all(query)
-
       if (!query.search || query.search === "") {
         RedisHelper.set(`Referral_${redisKey}`, data)
       }

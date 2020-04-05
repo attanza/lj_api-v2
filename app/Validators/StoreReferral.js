@@ -6,7 +6,7 @@ const messages = require("./messages")
 class StoreReferral {
   get rules() {
     return {
-      code: "required|string|min:3",
+      code: "string|min:3",
       maxConsumer: "integer",
       // products: "array",
       // "products.*.id": "required|integer|exists:products,id",

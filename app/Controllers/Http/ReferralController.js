@@ -6,7 +6,7 @@ const { GetRequestQuery, ResponseParser, ErrorLog, RedisHelper } = use(
 )
 const moment = require("moment")
 const { ActivityTraits } = use("App/Traits")
-
+const randomstring = require("randomstring")
 class ReferralController {
   async index({ request, response }) {
     try {
@@ -60,6 +60,15 @@ class ReferralController {
     try {
       const body = request.post()
       const user = await auth.getUser()
+      if (!body.code) {
+        body.code =
+          user.name.substr(0, 3).toUpperCase() +
+          randomstring.generate({
+            length: 7,
+            charset: "alphanumeric",
+            capitalization: "lowercase",
+          })
+      }
       const creator = {
         id: user.id,
         email: user.email,
@@ -67,7 +76,6 @@ class ReferralController {
       body.creator = creator
       body.maxConsumer = 0
       body.validUntil = moment().add(1, "d")
-
       const data = await ReferralTrait.store(body)
       const activity = `Add new Referral '${data.data.code}'`
 
@@ -77,6 +85,7 @@ class ReferralController {
       ])
       return response.status(201).send(data)
     } catch (e) {
+      console.log("e", e)
       ErrorLog(request, e)
       if (e.response && e.response.data) {
         return response

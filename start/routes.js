@@ -559,7 +559,6 @@ Route.group(() => {
       ])
     )
 
-
   /**
    * Online Product Order
    */
@@ -582,6 +581,10 @@ Route.group(() => {
         ],
       ])
     )
+
+  Route.get("revenue", "OnlineProductOrderController.revenue").validator(
+    "GetRevenue"
+  )
 })
   .prefix("api/v1")
   .formats(["json"])
@@ -611,7 +614,6 @@ Route.group(() => {
   Route.get("/check-target-code/:code", "MarketingTargetController.checkCode")
 
   Route.get("/products/:id", "ProductController.show")
-
 })
   .prefix("api/v1")
   .formats(["json"])

@@ -20,7 +20,7 @@ const fillable = [
   "device_id",
   "referral",
 ]
-
+const moment = require("moment")
 class OnlineProductOrderController {
   async index({ request, response }) {
     try {
@@ -45,16 +45,18 @@ class OnlineProductOrderController {
       const regexSearchKeys = ["order_no", "email", "phone", "status"]
       const searchKeys = ["marketing_id", "product_id"]
       const data = await OnlineProductOrder.query()
-        .with("marketing", builder => {
+        .with("marketing", (builder) => {
           builder.select("id", "name", "email")
         })
-        .with("product", builder => {
+        .with("product", (builder) => {
           builder.select("id", "name", "code", "price", "discount_price")
         })
-        .where(function() {
+        .where(function () {
           if (search && search != "") {
             this.where(regexSearchKeys[0], "like", `%${search}%`)
-            regexSearchKeys.forEach(s => this.orWhere(s, "like", `%${search}%`))
+            regexSearchKeys.forEach((s) =>
+              this.orWhere(s, "like", `%${search}%`)
+            )
           }
 
           if (search_by && searchKeys.includes(search_by) && search_query) {
@@ -248,7 +250,7 @@ class OnlineProductOrderController {
         return response.status(400).send(ResponseParser.apiNotFound())
       }
       const order = await OnlineProductOrder.query()
-        .where(function() {
+        .where(function () {
           this.where("activation_code", activation_code)
           if (device_id) {
             this.where("device_id", device_id)
@@ -290,6 +292,35 @@ class OnlineProductOrderController {
         data.delete(),
       ])
       return response.status(200).send(ResponseParser.apiDeleted())
+    } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async revenue({ request, response, auth }) {
+    try {
+      const { start_date, end_date } = request.get()
+      const user = await auth.getUser()
+      const roles = await user.getRoles()
+      let revenue = 0
+      const orders = await OnlineProductOrder.query()
+        .where(function () {
+          if (roles.includes("marketing")) {
+            this.where("marketing_id", user.id)
+          }
+          this.whereBetween("paid_at", [
+            moment(start_date).startOf("day").toDate(),
+            moment(end_date).endOf("day").toDate(),
+          ])
+        })
+        .sum("price as revenue")
+
+      if (orders && orders[0].revenue) {
+        revenue = orders[0].revenue
+      }
+      return response.status(200).send(ResponseParser.apiItem({ revenue }))
     } catch (e) {
       console.log("e", e)
       ErrorLog(request, e)

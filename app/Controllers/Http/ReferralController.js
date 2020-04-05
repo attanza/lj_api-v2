@@ -77,7 +77,6 @@ class ReferralController {
       ])
       return response.status(201).send(data)
     } catch (e) {
-      console.log("e", e)
       ErrorLog(request, e)
       if (e.response && e.response.data) {
         return response
@@ -127,7 +126,6 @@ class ReferralController {
 
       return data
     } catch (e) {
-      console.log("e", e)
       ErrorLog(request, e)
       if (e.response && e.response.data) {
         return response

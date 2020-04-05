@@ -12,11 +12,17 @@ class AlterProductDiscountPriceSchema extends Schema {
         .alter()
       table.decimal("discount_price", 10, 2).after("price")
     })
+    this.alter("dashboards", table => {
+      table.integer("total_orders").after("total_products")
+    })
   }
 
   down() {
     this.alter("products", table => {
       table.dropColumn("discount_price")
+    })
+    this.alter("dashboards", table => {
+      table.dropColumn("total_orders")
     })
   }
 }

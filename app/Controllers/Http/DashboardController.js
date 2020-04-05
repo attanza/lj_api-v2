@@ -5,6 +5,7 @@ const { RedisHelper } = use("App/Helpers")
 const User = use("App/Models/User")
 const Product = use("App/Models/Product")
 const University = use("App/Models/University")
+const OnlineProductOrder = use("App/Models/OnlineProductOrder")
 const Order = use("App/Models/OnlineProductOrder")
 const Database = use("Database")
 const moment = require("moment")
@@ -49,6 +50,10 @@ class DashboardController {
       .endOf("year")
       .format("YYYY-MM-DD HH:mm:ss")
 
+    const totalOrders = await OnlineProductOrder.query()
+      .whereBetween("paid_at", [startYear, endYear])
+      .count("* as total")
+
     const onlineOrders = await Order.query()
       .select(Database.raw("sum(price) as total, MONTH(paid_at) as month"))
       .groupBy("month")
@@ -61,6 +66,7 @@ class DashboardController {
       total_marketings: totalMarketings[0].total,
       total_products: totalProducts[0].total,
       total_universities: totalUniversities[0].total,
+      total_orders: totalOrders[0].total,
     }
 
     const dashboard = await Dashboard.first()

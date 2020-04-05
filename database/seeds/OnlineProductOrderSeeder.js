@@ -8,6 +8,7 @@ const axios = require("axios")
 const Chance = require("chance")
 const Env = use("Env")
 const REFERRAL_API = Env.get("REFERRAL_API")
+const moment = require("moment")
 
 class OnlineProductOrderSeeder {
   async run() {
@@ -16,12 +17,10 @@ class OnlineProductOrderSeeder {
       // await Factory.model("App/Models/OnlineProductOrder").createMany(100)
       const faker = new Chance()
 
-      const users = await User.query()
-        .whereIn("id", [6, 7, 8])
-        .fetch()
+      const users = await User.query().whereIn("id", [6, 7, 8]).fetch()
       const marketings = users.toJSON()
 
-      const productsDb = await Product.query().select('id', 'name').fetch()
+      const productsDb = await Product.query().select("id", "name").fetch()
       const jsonProducts = productsDb.toJSON()
       for (let j = 0; j < 100; j++) {
         // Creator
@@ -33,8 +32,9 @@ class OnlineProductOrderSeeder {
 
         // Products
         const products = []
-        for (let k = 0; k < faker.integer({min:2, max: 10}); k++) {
-          const selectedProduct = jsonProducts[faker.integer({min: 0, max: 2})]
+        for (let k = 0; k < faker.integer({ min: 2, max: 10 }); k++) {
+          const selectedProduct =
+            jsonProducts[faker.integer({ min: 0, max: 2 })]
           products.push({
             id: selectedProduct.id,
             name: selectedProduct.name,
@@ -59,13 +59,14 @@ class OnlineProductOrderSeeder {
           code: faker.bb_pin(),
           creator: creator,
           consumer: consumers,
-          products
+          products,
+          validUntil: moment().add(1, "day").toDate(),
         }
         await axios.post(REFERRAL_API + "/referrals", referral)
 
         // Orders
         const orders = []
-        consumers.map(c => {
+        consumers.map((c) => {
           const other = JSON.parse(c.other)
           orders.push({
             order_no: faker.bb_pin(),
@@ -81,7 +82,12 @@ class OnlineProductOrderSeeder {
             product_id: faker.integer({ min: 1, max: 3 }),
             paid_at: faker.date({ year: 2020 }),
             device_id: faker.android_id(),
-            activation_code: faker.string({ length: 12, casing: "lower", alpha: true, numeric: true }),
+            activation_code: faker.string({
+              length: 12,
+              casing: "lower",
+              alpha: true,
+              numeric: true,
+            }),
             is_disabled: false,
           })
         })

@@ -75,7 +75,9 @@ class ReferralController {
       }
       body.creator = creator
       body.maxConsumer = 0
-      body.validUntil = moment().add(1, "d")
+      if (!body.validUntil) {
+        body.validUntil = moment().add(1, "d")
+      }
       const data = await ReferralTrait.store(body)
       const activity = `Add new Referral '${data.data.code}'`
 

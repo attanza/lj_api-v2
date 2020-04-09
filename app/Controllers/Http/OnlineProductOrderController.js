@@ -42,7 +42,7 @@ class OnlineProductOrderController {
         page,
         limit,
       } = query
-      const regexSearchKeys = ["order_no", "email", "phone", "status"]
+      const regexSearchKeys = ["order_no", "email", "phone", "status", "name"]
       const searchKeys = ["marketing_id", "product_id"]
       const data = await OnlineProductOrder.query()
         .with("marketing", (builder) => {
@@ -301,7 +301,7 @@ class OnlineProductOrderController {
 
   async revenue({ request, response, auth }) {
     try {
-      const { start_date, end_date } = request.get()
+      const { start_date, end_date, marketing_id } = request.get()
       const user = await auth.getUser()
       const roles = await user.getRoles()
       let revenue = 0
@@ -309,6 +309,9 @@ class OnlineProductOrderController {
         .where(function () {
           if (roles.includes("marketing")) {
             this.where("marketing_id", user.id)
+          }
+          if (marketing_id) {
+            this.where("marketing_id", marketing_id)
           }
           this.whereBetween("paid_at", [
             moment(start_date).startOf("day").toDate(),

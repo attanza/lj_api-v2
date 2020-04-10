@@ -7,10 +7,16 @@ const { GetRequestQuery, ResponseParser, ErrorLog, RedisHelper } = use(
 const moment = require("moment")
 const { ActivityTraits } = use("App/Traits")
 const randomstring = require("randomstring")
+
 class ReferralController {
-  async index({ request, response }) {
+  async index({ request, response, auth }) {
     try {
-      const query = GetRequestQuery(request)
+      const query = await GetRequestQuery({
+        request,
+        auth,
+        role: "marketing",
+        key: "creator.id",
+      })
       const { redisKey } = query
       const cache = await RedisHelper.get(`Referral_${redisKey}`)
       if (cache && cache != null) {

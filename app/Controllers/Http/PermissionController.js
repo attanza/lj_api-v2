@@ -94,7 +94,6 @@ class PermissionController {
   async bulkStore({ request, response, auth }) {
     try {
       let { permissions } = request.post()
-      console.log("permissions", permissions)
       const permissionData = []
 
       const permissionIds = await Permission.query()
@@ -111,17 +110,14 @@ class PermissionController {
             )
           )
       }
-      console.log("permissionIds", permissionIds)
       permissions.map(p => permissionData.push({ name: p }))
       const data = await Permission.createMany(permissionData)
-      console.log("data", data)
       await RedisHelper.delete("Permission_*")
       const activity = `Add new Bulk Permission'`
       await ActivityTraits.saveActivity(request, auth, activity)
       let parsed = ResponseParser.apiCreated()
       return response.status(201).send(parsed)
     } catch (e) {
-      console.log("e", e)
       ErrorLog(request, e)
       return response.status(500).send(ResponseParser.unknownError())
     }

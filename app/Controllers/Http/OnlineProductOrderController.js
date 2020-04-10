@@ -24,7 +24,7 @@ const moment = require("moment")
 class OnlineProductOrderController {
   async index({ request, response }) {
     try {
-      const query = GetRequestQuery(request)
+      const query = await GetRequestQuery({request})
       const { redisKey } = query
       const cache = await RedisHelper.get("OnlineProductOrder_" + redisKey)
       if (cache && cache != null) {

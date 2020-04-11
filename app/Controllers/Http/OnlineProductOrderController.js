@@ -22,9 +22,14 @@ const fillable = [
 ]
 const moment = require("moment")
 class OnlineProductOrderController {
-  async index({ request, response }) {
+  async index({ request, response, auth }) {
     try {
-      const query = await GetRequestQuery({request})
+      const query = await GetRequestQuery({
+        request,
+        auth,
+        role: "marketing",
+        key: "marketing_id",
+      })
       const { redisKey } = query
       const cache = await RedisHelper.get("OnlineProductOrder_" + redisKey)
       if (cache && cache != null) {
@@ -45,18 +50,16 @@ class OnlineProductOrderController {
       const regexSearchKeys = ["order_no", "email", "phone", "status", "name"]
       const searchKeys = ["marketing_id", "product_id"]
       const data = await OnlineProductOrder.query()
-        .with("marketing", (builder) => {
+        .with("marketing", builder => {
           builder.select("id", "name", "email")
         })
-        .with("product", (builder) => {
+        .with("product", builder => {
           builder.select("id", "name", "code", "price", "discount_price")
         })
-        .where(function () {
+        .where(function() {
           if (search && search != "") {
             this.where(regexSearchKeys[0], "like", `%${search}%`)
-            regexSearchKeys.forEach((s) =>
-              this.orWhere(s, "like", `%${search}%`)
-            )
+            regexSearchKeys.forEach(s => this.orWhere(s, "like", `%${search}%`))
           }
 
           if (search_by && searchKeys.includes(search_by) && search_query) {
@@ -250,7 +253,7 @@ class OnlineProductOrderController {
         return response.status(400).send(ResponseParser.apiNotFound())
       }
       const order = await OnlineProductOrder.query()
-        .where(function () {
+        .where(function() {
           this.where("activation_code", activation_code)
           if (device_id) {
             this.where("device_id", device_id)
@@ -306,7 +309,7 @@ class OnlineProductOrderController {
       const roles = await user.getRoles()
       let revenue = 0
       const orders = await OnlineProductOrder.query()
-        .where(function () {
+        .where(function() {
           if (roles.includes("marketing")) {
             this.where("marketing_id", user.id)
           }
@@ -314,8 +317,12 @@ class OnlineProductOrderController {
             this.where("marketing_id", marketing_id)
           }
           this.whereBetween("paid_at", [
-            moment(start_date).startOf("day").toDate(),
-            moment(end_date).endOf("day").toDate(),
+            moment(start_date)
+              .startOf("day")
+              .toDate(),
+            moment(end_date)
+              .endOf("day")
+              .toDate(),
           ])
         })
         .sum("price as revenue")

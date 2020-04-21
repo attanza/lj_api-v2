@@ -67,7 +67,14 @@ class OnlineProductOrderController {
           }
 
           if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+            this.whereBetween(between_date, [
+              moment(start_date)
+                .startOf("day")
+                .format("YYYY-MM-DD HH:mm:ss"),
+              moment(end_date)
+                .endOf("day")
+                .format("YYYY-MM-DD HH:mm:ss"),
+            ])
           }
         })
         .orderBy(sort_by, sort_mode)

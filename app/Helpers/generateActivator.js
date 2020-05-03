@@ -315,7 +315,7 @@ const getContent = order => {
 														style="font-size: 12px; line-height: 1.2; word-break: break-word; text-align: center; mso-line-height-alt: 14px; margin: 0;">
 														<span style="font-size: 12px;"><strong>Kode serial dapat
 																digunakan untuk registrasi semua aplikasi
-																"NamaProduk"</strong></span></p>
+																"${order.product.name}"</strong></span></p>
 												</div>
 											</div>
 											<!--[if mso]></td></tr></table><![endif]-->
@@ -508,7 +508,6 @@ const getContent = order => {
 }
 
 const generateActivator = async order => {
-  console.log("generateActivator")
   const code = randomstring.generate({
     length: 12,
     charset: "alphanumeric",

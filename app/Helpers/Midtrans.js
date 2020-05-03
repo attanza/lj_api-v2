@@ -36,7 +36,6 @@ class Midtrans {
   }
 
   async statusActions(ctx, order) {
-    console.log("ctx", ctx)
     const { transaction_status, payment_type } = ctx
     // Check for failure status
     const failureStatus = ["deny", "failure"]

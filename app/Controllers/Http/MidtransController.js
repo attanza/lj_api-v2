@@ -25,11 +25,12 @@ class MidtransController {
             console.log("Order not found")
             return this.sendResponse(response)
           }
+          console.log(order.toJSON())
           await Midtrans.statusActions(request.post(), order)
           return this.sendResponse(response)
         }
       }
-      // console.log("Signature not verified")
+      console.log("Signature not verified")
       return this.sendResponse(response)
     } catch (e) {
       console.log("e", e)

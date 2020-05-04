@@ -382,7 +382,7 @@ const getContent = order => {
 														PERHATIAN:</p>
 													<p
 														style="line-height: 1.2; word-break: break-word; mso-line-height-alt: NaNpx; margin: 0;">
-														Harap jaga kerahasiaan Kode seral anda, karena 1 kode serial
+														Harap jaga kerahasiaan Kode serial anda, karena 1 kode serial
 														hanya dapat digunakan pada satu device.</p>
 												</div>
 											</div>

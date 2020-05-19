@@ -9,10 +9,6 @@ class StoreReferral {
       code: "string|min:3",
       maxConsumer: "integer",
       validUntil: "date",
-      // products: "array",
-      // "products.*.id": "required|integer|exists:products,id",
-      // "products.*.name": "required|string|max:50",
-      // validUntil: "required|date",
       description: "max:250",
     }
   }

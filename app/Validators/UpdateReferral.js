@@ -8,15 +8,9 @@ class UpdateReferral {
     return {
       code: "string|min:3",
       maxConsumer: "integer",
-      products: "array",
-      "products.*.id": "integer|exists:products,id",
-      "products.*.name": "string|max:50",
       validUntil: "date",
-      description: "max:250",
-      consumer: "array",
-      "consumer.*.id": "integer|exists:products,id",
-      "consumer.*.email": "email",
       isExpired: "boolean",
+      description: "max:250",
     }
   }
 

@@ -183,6 +183,7 @@ class OnlineProductOrderController {
         "status",
         "marketing_id",
         "product_id",
+        "is_disabled",
       ]
       let body = request.only(fillable)
       const id = request.params.id

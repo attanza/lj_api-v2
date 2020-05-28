@@ -15,7 +15,7 @@ Route.group(() => {
   // Route.post("/reset", "PasswordController.postReset").validator(
   //   "Auth/GetForgot"
   // )
-  // Route.get("/client-generate-code", "ClientController.generateToken")
+  Route.get("/client-generate-code", "ClientController.generateToken")
 })
   .prefix("api/v1")
   .namespace("Auth")
@@ -25,35 +25,6 @@ Route.group(() => {
  * Auth:jwt Route
  */
 Route.group(() => {
-  /**
-   * Redis
-   */
-
-  // Route.get("redis/clear", async ({ response }) => {
-  //   await RedisHelper.clear()
-  //   return response
-  //     .status(200)
-  //     .send(ResponseParser.successResponse("Redis Clear"))
-  // }).middleware(["can:clear-redis"])
-
-  // Route.post("make-token", async ({ request, response }) => {
-  //   const date = Math.floor(Date.now() / 1000).toString()
-  //   const CLIENT_TOKEN = Env.get("CLIENT_TOKEN")
-  //   const body = {
-  //     date,
-  //   }
-  //   const encrypted = AesUtil.encrypt(JSON.stringify(body), date + CLIENT_TOKEN)
-  //   return response.status(200).send(
-  //     ResponseParser.successResponse(
-  //       {
-  //         encrypted,
-  //         date,
-  //       },
-  //       "Token"
-  //     )
-  //   )
-  // })
-
   /**
    * Me
    */

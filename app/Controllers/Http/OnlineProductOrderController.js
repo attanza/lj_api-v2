@@ -265,7 +265,9 @@ class OnlineProductOrderController {
   async activate({ request, response }) {
     try {
       const { device_id, activation_code, order_no } = request.post()
+      console.log("activation_code", activation_code)
       if (!activation_code) {
+        console.log("activation not exists")
         return response.status(400).send(ResponseParser.apiNotFound())
       }
       const order = await OnlineProductOrder.query()
@@ -282,6 +284,7 @@ class OnlineProductOrderController {
         .first()
 
       if (!order) {
+        console.log("order not found")
         return response.status(400).send(ResponseParser.apiNotFound())
       }
 

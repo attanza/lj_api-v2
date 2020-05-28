@@ -47,7 +47,16 @@ class OnlineProductOrderController {
         page,
         limit,
       } = query
-      const regexSearchKeys = ["order_no", "email", "phone", "status", "name"]
+
+      const regexSearchKeys = [
+        "order_no",
+        "email",
+        "phone",
+        "status",
+        "name",
+        "activation_code",
+        "device_id",
+      ]
       const searchKeys = ["marketing_id", "product_id"]
       const data = await OnlineProductOrder.query()
         .with("marketing", builder => {

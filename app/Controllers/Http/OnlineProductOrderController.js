@@ -126,7 +126,7 @@ class OnlineProductOrderController {
         ReferralTrait.update(referralData._id, { consumer: [consumer] })
       }
 
-      RedisHelper.delete("OnlineProductOrder_*")
+      await RedisHelper.delete("OnlineProductOrder_*")
 
       return response.status(201).send(ResponseParser.apiCreated(newOrder))
     } catch (e) {
@@ -290,6 +290,7 @@ class OnlineProductOrderController {
 
       order.is_disabled = false
       await order.save()
+      await RedisHelper.delete("OnlineProductOrder_*")
 
       return response.status(200).send(ResponseParser.apiItem(order.toJSON()))
     } catch (e) {

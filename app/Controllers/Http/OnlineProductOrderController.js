@@ -266,10 +266,10 @@ class OnlineProductOrderController {
   async activate({ request, response }) {
     try {
       const { device_id, activation_code, order_no } = request.post()
-      console.log("activation_code", activation_code)
       if (!activation_code) {
-        console.log("activation not exists")
-        return response.status(400).send(ResponseParser.apiNotFound())
+        return response
+          .status(400)
+          .send(ResponseParser.errorResponse("Kode aktifasi diperlukan"))
       }
       const order = await OnlineProductOrder.query()
         .where(function() {
@@ -286,7 +286,13 @@ class OnlineProductOrderController {
 
       if (!order) {
         console.log("order not found")
-        return response.status(400).send(ResponseParser.apiNotFound())
+        return response
+          .status(400)
+          .send(
+            ResponseParser.errorResponse(
+              "Aktifasi gagal, hal ini dikarenakan kode aktifasi salah atau device id tidak sesuai atau no order salah atau status pembayaran belum terbayar."
+            )
+          )
       }
 
       order.is_disabled = false

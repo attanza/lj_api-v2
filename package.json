@@ -35,6 +35,7 @@
     "@adonisjs/validator": "^5.0.6",
     "@adonisjs/vow": "^1.0.17",
     "adonis-acl": "^1.1.1",
+    "adonis-mqtt": "^0.2.0",
     "adonis-scheduler": "^3.0.2",
     "adonis-throttle": "^2.3.6",
     "axios": "^0.19.2",

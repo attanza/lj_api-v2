@@ -285,7 +285,6 @@ class OnlineProductOrderController {
         .first()
 
       if (!order) {
-        console.log("order not found")
         return response
           .status(400)
           .send(

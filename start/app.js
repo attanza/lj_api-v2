@@ -26,6 +26,7 @@ const providers = [
   "@adonisjs/drive/providers/DriveProvider",
   "@adonisjs/lucid-slugify/providers/SlugifyProvider",
   "adonis-throttle/providers/ThrottleProvider",
+  "adonis-mqtt/providers/MqttProvider",
 ]
 
 /*
@@ -42,6 +43,7 @@ const aceProviders = [
   "@adonisjs/vow/providers/VowProvider",
   "adonis-acl/providers/CommandsProvider",
   "adonis-scheduler/providers/CommandsProvider",
+  "adonis-mqtt/providers/CommandsProvider",
 ]
 
 /*

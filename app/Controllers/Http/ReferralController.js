@@ -116,7 +116,6 @@ class ReferralController {
         ActivityTraits.saveActivity(request, auth, activity),
         RedisHelper.delete("Referral_*"),
       ])
-
       return data
     } catch (e) {
       ErrorLog(request, e)

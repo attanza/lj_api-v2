@@ -1,7 +1,7 @@
 "use strict"
 
 const MqttListener = use("MqttListener")
-
+const { RedisHelper } = use("App/Helpers")
 class Test extends MqttListener {
   /**
    * This is the subscription string the listener is listening to.
@@ -9,7 +9,7 @@ class Test extends MqttListener {
    * @returns {string}
    */
   get subscription() {
-    return "#"
+    return "referral/#"
   }
 
   /**
@@ -19,7 +19,10 @@ class Test extends MqttListener {
    * @param {String[]} wildcardMatches Wildcard matches in your subscription string
    */
   async handleMessage(message, wildcardMatches) {
-    console.log("mqtt message", message)
+    if (wildcardMatches.includes("checkExpiry")) {
+      console.log("clear referral cache")
+      await RedisHelper.delete("Referral_*")
+    }
   }
 }
 

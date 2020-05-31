@@ -9,6 +9,12 @@ Route.get("/", "DocumentController.intro")
 Route.get("/docs", "DocumentController.index")
 Route.get("/online-product-order-flow", "DocumentController.onlineOrderFlow")
 
+Route.get("mqtt-test", async ({ request, response }) => {
+  const Mqtt = use("Mqtt")
+  await Mqtt.sendMessage("mytopic", "Hallo", { qos: 1 })
+  return response.send("hallo")
+})
+
 Route.group(() => {
   Route.post("/login", "LoginController.login").validator("Login")
   Route.post("/refresh", "LoginController.refresh").middleware(["auth:jwt"])

@@ -30,11 +30,11 @@ class OnlineProductOrderController {
         role: "marketing",
         key: "marketing_id",
       })
-      const { redisKey } = query
-      const cache = await RedisHelper.get("OnlineProductOrder_" + redisKey)
-      if (cache && cache != null) {
-        return cache
-      }
+      // const { redisKey } = query
+      // const cache = await RedisHelper.get("OnlineProductOrder_" + redisKey)
+      // if (cache && cache != null) {
+      //   return cache
+      // }
       const {
         search,
         search_by,
@@ -91,9 +91,9 @@ class OnlineProductOrderController {
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
-        await RedisHelper.set("OnlineProductOrder_" + redisKey, parsed)
-      }
+      // if (!search || search == "") {
+      //   await RedisHelper.set("OnlineProductOrder_" + redisKey, parsed)
+      // }
       return response.status(200).send(parsed)
     } catch (e) {
       console.log("e", e)
@@ -126,7 +126,7 @@ class OnlineProductOrderController {
         ReferralTrait.update(referralData._id, { consumer: [consumer] })
       }
 
-      await RedisHelper.delete("OnlineProductOrder_*")
+      // await RedisHelper.delete("OnlineProductOrder_*")
 
       return response.status(201).send(ResponseParser.apiCreated(newOrder))
     } catch (e) {
@@ -195,7 +195,7 @@ class OnlineProductOrderController {
       await data.save()
       const activity = `Update OnlineProductOrder '${data.order_no}'`
       ActivityTraits.saveActivity(request, auth, activity)
-      RedisHelper.delete("OnlineProductOrder_*")
+      // RedisHelper.delete("OnlineProductOrder_*")
       await data.loadMany(["marketing", "product"])
 
       let parsed = ResponseParser.apiUpdated(data.toJSON())
@@ -210,18 +210,18 @@ class OnlineProductOrderController {
   async show({ request, response }) {
     try {
       const id = request.params.id
-      let redisKey = `OnlineProductOrder_${id}`
-      let cached = await RedisHelper.get(redisKey)
-      if (cached) {
-        return response.status(200).send(cached)
-      }
+      // let redisKey = `OnlineProductOrder_${id}`
+      // let cached = await RedisHelper.get(redisKey)
+      // if (cached) {
+      //   return response.status(200).send(cached)
+      // }
       const data = await OnlineProductOrder.find(id)
       if (!data) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }
       await data.loadMany(["marketing", "product"])
       let parsed = ResponseParser.apiItem(data.toJSON())
-      await RedisHelper.set(redisKey, parsed)
+      // await RedisHelper.set(redisKey, parsed)
       return response.status(200).send(parsed)
     } catch (e) {
       ErrorLog(request, e)
@@ -296,7 +296,7 @@ class OnlineProductOrderController {
 
       order.is_disabled = false
       await order.save()
-      await RedisHelper.delete("OnlineProductOrder_*")
+      // await RedisHelper.delete("OnlineProductOrder_*")
 
       return response.status(200).send(ResponseParser.apiItem(order.toJSON()))
     } catch (e) {
@@ -317,7 +317,7 @@ class OnlineProductOrderController {
       const activity = `Delete OnlineProductOrder '${data.order_no}'`
       Promise.all([
         ActivityTraits.saveActivity(request, auth, activity),
-        RedisHelper.delete("OnlineProductOrder_*"),
+        // RedisHelper.delete("OnlineProductOrder_*"),
         data.delete(),
       ])
       return response.status(200).send(ResponseParser.apiDeleted())

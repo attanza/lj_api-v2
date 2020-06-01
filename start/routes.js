@@ -5,6 +5,8 @@ const { RedisHelper, ResponseParser, AesUtil } = use("App/Helpers")
 const Env = use("Env")
 const User = use("App/Models/User")
 
+const isProd = Env.get("NODE_ENV") === "production"
+
 Route.get("/", "DocumentController.intro")
 Route.get("/docs", "DocumentController.index")
 Route.get("/online-product-order-flow", "DocumentController.onlineOrderFlow")
@@ -21,7 +23,9 @@ Route.group(() => {
   // Route.post("/reset", "PasswordController.postReset").validator(
   //   "Auth/GetForgot"
   // )
-  Route.get("/client-generate-code", "ClientController.generateToken")
+  if (!isProd) {
+    Route.get("/client-generate-code", "ClientController.generateToken")
+  }
 })
   .prefix("api/v1")
   .namespace("Auth")

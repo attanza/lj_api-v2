@@ -72,15 +72,12 @@ class LoginController {
 
   async checkUser(user, email, password) {
     if (!user) {
-      console.log("no user") //eslint-disable-line
       return false
     }
     if (!(await Hash.verify(password, user.password))) {
-      console.log("password not matched") //eslint-disable-line
       return false
     }
     if (!user.is_active) {
-      console.log("user not active") //eslint-disable-line
       return false
     }
     return true

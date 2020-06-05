@@ -264,6 +264,44 @@ class OnlineProductOrderController {
     }
   }
 
+  async disableOrder({ request, response }) {
+    try {
+      const { order_no, device_id } = request.params
+      if (!order_no || !device_id) {
+        return response
+          .status(400)
+          .send(
+            ResponseParser.errorResponse("order_no dan device_id diperlukan!")
+          )
+      }
+      let order = await OnlineProductOrder.query()
+        .where("order_no", order_no)
+        .where("device_id", device_id)
+        .first()
+
+      if (!order) {
+        return response
+          .status(400)
+          .send(
+            ResponseParser.errorResponse(
+              "order atau kode aktivasi tidak ditemukan!"
+            )
+          )
+      }
+
+      order.is_disabled = true
+      await order.save()
+
+      return response
+        .status(200)
+        .send(ResponseParser.successResponse(null, "Activation code disabled"))
+    } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
   async activate({ request, response }) {
     try {
       const { device_id, activation_code, order_no } = request.post()

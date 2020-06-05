@@ -621,6 +621,10 @@ Route.group(() => {
     "online-product-orders/:order_no/:device_id",
     "OnlineProductOrderController.getByOrderNo"
   )
+  Route.put(
+    "online-product-orders/:order_no/:device_id/disable",
+    "OnlineProductOrderController.disableOrder"
+  )
 })
   .prefix("api/v1")
   .middleware(["client", "throttle:3"])

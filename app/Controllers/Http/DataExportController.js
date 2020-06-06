@@ -597,19 +597,23 @@ class DataExportController {
       let d = Object.assign({}, data)
 
       // Product
+      d.product_code = ""
+      d.product_name = ""
       if (d.product && typeof d.product === "object") {
         d.product_code = d.product.code
         d.product_name = d.product.name
-        delete d.product_id
-        delete d.product
       }
+      delete d.product_id
+      delete d.product
       // Marketing
+      d.marketing_name = ""
+      d.marketing_email = ""
       if (d.marketing && typeof d.marketing === "object") {
         d.marketing_name = d.marketing.name
         d.marketing_email = d.marketing.email
-        delete d.marketing_id
-        delete d.marketing
       }
+      delete d.marketing_id
+      delete d.marketing
 
       output.push(d)
     })

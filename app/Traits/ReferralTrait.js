@@ -60,7 +60,6 @@ class ReferralTrait {
         .then(res => res.data)
       return resp.data
     } catch (error) {
-      console.log("error", JSON.stringify(error))
       return null
     }
   }

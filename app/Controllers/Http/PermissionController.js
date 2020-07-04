@@ -19,7 +19,6 @@ class PermissionController {
    */
   async index(ctx) {
     const { request, response } = ctx
-
     try {
       const q = await GetRequestQuery(ctx)
       const redisKey = `Permission_${q.redisKey}`

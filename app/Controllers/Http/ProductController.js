@@ -1,7 +1,9 @@
 "use strict"
 
 const Product = use("App/Models/Product")
-const { RedisHelper, ResponseParser, ErrorLog } = use("App/Helpers")
+const { RedisHelper, ResponseParser, ErrorLog, GetRequestQuery } = use(
+  "App/Helpers"
+)
 const { ActivityTraits, ReferralTrait } = use("App/Traits")
 const fillable = [
   "code",
@@ -21,58 +23,43 @@ class ProductController {
    * Index
    * Get List of Products
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 10
-      if (!sort_by) sort_by = "id"
-      if (!sort_mode) sort_mode = "desc"
-
-      const redisKey = `Product_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `Product_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
       const data = await Product.query()
         .where(function() {
-          if (search && search != "") {
-            this.where("code", "like", `%${search}%`)
-            this.orWhere("name", "like", `%${search}%`)
-            this.orWhere("measurement", "like", `%${search}%`)
-            this.orWhere("price", "like", `%${search}%`)
-            this.orWhere("discount_price", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("code", "like", `%${q.search}%`)
+            this.orWhere("name", "like", `%${q.search}%`)
+            this.orWhere("measurement", "like", `%${q.search}%`)
+            this.orWhere("price", "like", `%${q.search}%`)
+            this.orWhere("discount_price", "like", `%${q.search}%`)
           }
 
-          if (search_by && search_query) {
-            this.where(search_by, search_query)
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(page, limit)
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(q.page, q.limit)
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)
@@ -115,7 +102,10 @@ class ProductController {
       if (cached) {
         return response.status(200).send(cached)
       }
-      const data = await Product.query().where('id', id).orWhere('code', id).first()
+      const data = await Product.query()
+        .where("id", id)
+        .orWhere("code", id)
+        .first()
       if (!data) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }

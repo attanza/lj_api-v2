@@ -1,7 +1,9 @@
 "use strict"
 
 const MarketingTarget = use("App/Models/MarketingTarget")
-const { RedisHelper, ResponseParser, ErrorLog } = use("App/Helpers")
+const { RedisHelper, ResponseParser, ErrorLog, GetRequestQuery } = use(
+  "App/Helpers"
+)
 const { ActivityTraits } = use("App/Traits")
 const fillable = ["code", "study_program_id", "description", "angkatan"]
 
@@ -15,32 +17,16 @@ class MarketingTargetController {
    * Index
    * Get List of MarketingTargets
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-        study_id,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 10
-      if (!sort_by) sort_by = "created_at"
-      if (!sort_mode) sort_mode = "desc"
-
-      const redisKey = `MarketingTarget_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}${study_id}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `MarketingTarget_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
@@ -48,39 +34,39 @@ class MarketingTargetController {
         .with("study.studyName")
         .with("study.university")
         .where(function() {
-          if (search && search != "") {
-            this.where("code", "like", `%${search}%`)
-            this.orWhere("angkatan", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("code", "like", `%${q.search}%`)
+            this.orWhere("angkatan", "like", `%${q.search}%`)
             this.orWhereHas("study", builder => {
               builder.whereHas("university", builder2 => {
-                builder2.where("name", "like", `%${search}%`)
+                builder2.where("name", "like", `%${q.search}%`)
               })
             })
             this.orWhereHas("study", builder => {
               builder.orWhereHas("studyName", builder2 => {
-                builder2.where("name", "like", `%${search}%`)
+                builder2.where("name", "like", `%${q.search}%`)
               })
             })
           }
 
-          if (study_id && study_id != "") {
-            return this.where("study_program_id", parseInt(study_id))
+          if (q.study_id && q.study_id != "") {
+            return this.where("study_program_id", parseInt(q.study_id))
           }
 
-          if (search_by && search_query) {
-            this.where(search_by, search_query)
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(page, limit)
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(q.page, q.limit)
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)

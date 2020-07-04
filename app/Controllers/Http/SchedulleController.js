@@ -1,9 +1,13 @@
 "use strict"
 
 const Schedulle = use("App/Models/Schedulle")
-const { RedisHelper, ResponseParser, PushNotifications, ErrorLog } = use(
-  "App/Helpers"
-)
+const {
+  RedisHelper,
+  ResponseParser,
+  PushNotifications,
+  ErrorLog,
+  GetRequestQuery,
+} = use("App/Helpers")
 const { ActivityTraits } = use("App/Traits")
 
 const fillable = [
@@ -20,34 +24,16 @@ class SchedulleController {
    * Index
    * Get List of Schedulle
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-        marketing_target_id,
-        marketing_action_id,
-        marketing_id,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 50
-      if (!sort_by) sort_by = "id"
-      if (!sort_mode) sort_mode = "desc"
-
-      const redisKey = `Schedulle_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}${marketing_target_id}${marketing_action_id}${marketing_id}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `Schedulle_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
@@ -64,50 +50,49 @@ class SchedulleController {
           builder.select("id", "name")
         })
         .where(function() {
-          if (search && search != "") {
-            this.where("code", "like", `%${search}%`)
-            this.orWhere("description", "like", `%${search}%`)
-            this.orWhere("date", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("code", "like", `%${q.search}%`)
+            this.orWhere("description", "like", `%${q.search}%`)
+            this.orWhere("date", "like", `%${q.search}%`)
             this.orWhereHas("action", builder => {
-              builder.where("name", "like", `%${search}%`)
+              builder.where("name", "like", `%${q.search}%`)
             })
             this.orWhereHas("target", builder => {
-              builder.where("code", "like", `%${search}%`)
+              builder.where("code", "like", `%${q.search}%`)
             })
             this.orWhereHas("report", builder => {
-              builder.where("code", "like", `%${search}%`)
+              builder.where("code", "like", `%${q.search}%`)
             })
             this.orWhereHas("marketing", builder => {
-              builder.where("name", "like", `%${search}%`)
+              builder.where("name", "like", `%${q.search}%`)
             })
           }
 
-          if (marketing_id && marketing_id != "") {
-            this.where("marketing_id", marketing_id)
+          if (q.marketing_id && q.marketing_id != "") {
+            this.where("marketing_id", q.marketing_id)
           }
 
-          if (marketing_target_id && marketing_target_id != "") {
-            this.where("marketing_target_id", marketing_target_id)
+          if (q.marketing_target_id && q.marketing_target_id != "") {
+            this.where("marketing_target_id", q.marketing_target_id)
           }
 
-          if (marketing_action_id && marketing_action_id != "") {
-            this.where("marketing_action_id", marketing_action_id)
+          if (q.marketing_action_id && q.marketing_action_id != "") {
+            this.where("marketing_action_id", q.marketing_action_id)
+          }
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (search_by && search_query) {
-            this.where(search_by, search_query)
-          }
-
-          if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(page, limit)
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(q.page, q.limit)
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)

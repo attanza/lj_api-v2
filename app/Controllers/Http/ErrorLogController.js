@@ -1,8 +1,7 @@
 "use strict"
 
 const ErrorLog = use("App/Models/ErrorLog")
-const { RedisHelper, ResponseParser, MailHelper } = use("App/Helpers")
-const { ActivityTraits } = use("App/Traits")
+const { RedisHelper, ResponseParser, GetRequestQuery } = use("App/Helpers")
 const fillable = [
   "url",
   "method",
@@ -17,56 +16,41 @@ class ErrorLogController {
    * Index
    * Get List of Universities
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 10
-      if (!sort_by) sort_by = "id"
-      if (!sort_mode) sort_mode = "desc"
-
-      const redisKey = `ErrorLog_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `ErrorLog_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
       const data = await ErrorLog.query()
         .where(function() {
-          if (search && search != "") {
-            this.where("from", "like", `%${search}%`)
-            this.orWhere("resource", "like", `%${search}%`)
-            this.orWhere("action", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("from", "like", `%${q.search}%`)
+            this.orWhere("resource", "like", `%${q.search}%`)
+            this.orWhere("action", "like", `%${q.search}%`)
           }
 
-          if (search_by && search_query) {
-            this.where(search_by, search_query)
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(page, limit)
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(q.page, q.limit)
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)

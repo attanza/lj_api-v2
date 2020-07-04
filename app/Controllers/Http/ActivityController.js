@@ -12,8 +12,8 @@ class ActivityController {
    */
   async index({ request, response }) {
     try {
-      const query = await GetRequestQuery({request})
-      const redisKey = "Activity" + query.redisKey
+      const query = await GetRequestQuery({ request })
+      const redisKey = "Activity_" + query.redisKey
       let cached = await RedisHelper.get(redisKey)
       if (cached && !query.search) {
         return cached

@@ -2,7 +2,9 @@
 
 const User = use("App/Models/User")
 const Role = use("App/Models/Role")
-const { RedisHelper, ResponseParser, ErrorLog } = use("App/Helpers")
+const { RedisHelper, ResponseParser, ErrorLog, GetRequestQuery } = use(
+  "App/Helpers"
+)
 const { ActivityTraits, ActivationTraits } = use("App/Traits")
 
 const fillable = [
@@ -24,66 +26,50 @@ class UserController {
    * Index
    * Get List of Users
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-        supervisor_id,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 10
-      if (!sort_by) sort_by = "name"
-      if (!sort_mode) sort_mode = "asc"
-
-      const redisKey = `Marketing_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}${supervisor_id}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `Marketing_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
       const data = await User.query()
         .where(function() {
-          if (search && search != "") {
-            this.where("name", "like", `%${search}%`)
-            this.orWhere("email", "like", `%${search}%`)
-            this.orWhere("phone", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("name", "like", `%${q.search}%`)
+            this.orWhere("email", "like", `%${q.search}%`)
+            this.orWhere("phone", "like", `%${q.search}%`)
           }
 
-          if (supervisor_id && supervisor_id != "") {
+          if (q.supervisor_id && q.supervisor_id != "") {
             this.whereHas("supervisors", builder => {
-              return builder.where("supervisor_id", supervisor_id)
+              return builder.where("supervisor_id", q.supervisor_id)
             })
           }
 
-          if (search_by && search_query) {
-            this.where(search_by, search_query)
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
         })
         .whereHas("roles", builder => {
           return builder.where("slug", "marketing")
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(page, limit)
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(q.page, q.limit)
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)

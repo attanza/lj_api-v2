@@ -1,7 +1,9 @@
 "use strict"
 
 const MarketingReport = use("App/Models/MarketingReport")
-const { RedisHelper, ResponseParser, ErrorLog } = use("App/Helpers")
+const { RedisHelper, ResponseParser, ErrorLog, GetRequestQuery } = use(
+  "App/Helpers"
+)
 const { ActivityTraits } = use("App/Traits")
 const fillable = [
   "code",
@@ -26,34 +28,16 @@ class MarketingReportController {
    * Index
    * Get List of MarketingReports
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-        schedulle_id,
-        marketing_target_id,
-        university_id,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 50
-      if (!sort_by) sort_by = "id"
-      if (!sort_mode) sort_mode = "desc"
-
-      const redisKey = `MarketingReport_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}${schedulle_id}${marketing_target_id}${university_id}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `MarketingReport_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
@@ -63,22 +47,22 @@ class MarketingReportController {
         .with("schedulle.target.study.studyName")
         .with("schedulle.action")
         .where(function() {
-          if (search && search != "") {
-            this.where("method", "like", `%${search}%`)
-            this.orWhere("code", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("method", "like", `%${q.search}%`)
+            this.orWhere("code", "like", `%${q.search}%`)
             this.orWhereHas("schedulle", builder => {
               builder.whereHas("action", builder2 => {
-                builder2.where("name", "like", `%${search}%`)
+                builder2.where("name", "like", `%${q.search}%`)
               })
             })
             this.orWhereHas("schedulle", builder => {
-              builder.orWhere("code", "like", `%${search}%`)
+              builder.orWhere("code", "like", `%${q.search}%`)
             })
             this.orWhereHas("schedulle", builder => {
               builder.whereHas("target", builder2 => {
                 builder2.whereHas("study", builder3 => {
                   builder3.whereHas("university", builder4 => {
-                    builder4.where("name", "like", `%${search}%`)
+                    builder4.where("name", "like", `%${q.search}%`)
                   })
                 })
               })
@@ -87,48 +71,48 @@ class MarketingReportController {
               builder.whereHas("target", builder2 => {
                 builder2.whereHas("study", builder3 => {
                   builder3.whereHas("studyName", builder4 => {
-                    builder4.where("name", "like", `%${search}%`)
+                    builder4.where("name", "like", `%${q.search}%`)
                   })
                 })
               })
             })
           }
 
-          if (search_by && search_query) {
-            return this.where(search_by, "like", `%${search_query}%`)
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (between_date && start_date && end_date) {
-            return this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
 
-          if (marketing_target_id && marketing_target_id != "") {
+          if (q.marketing_target_id && q.marketing_target_id != "") {
             return this.whereHas("schedulle", builder => {
-              builder.where("marketing_target_id", marketing_target_id)
+              builder.where("marketing_target_id", q.marketing_target_id)
             })
           }
 
-          if (schedulle_id && schedulle_id != "") {
-            return this.where("schedulle_id", parseInt(schedulle_id))
+          if (q.schedulle_id && q.schedulle_id != "") {
+            return this.where("schedulle_id", parseInt(q.schedulle_id))
           }
 
-          if (university_id && university_id != "") {
+          if (q.university_id && q.university_id != "") {
             return this.whereHas("schedulle", builder => {
               builder.whereHas("target", builder2 => {
                 builder2.whereHas("study", builder3 => {
                   builder3.whereHas("university", builder4 => {
-                    builder4.where("id", university_id)
+                    builder4.where("id", q.university_id)
                   })
                 })
               })
             })
           }
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(parseInt(page), parseInt(limit))
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(parseInt(q.page), parseInt(q.limit))
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)

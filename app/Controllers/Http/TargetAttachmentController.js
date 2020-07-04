@@ -2,7 +2,9 @@
 
 const TargetAttachment = use("App/Models/TargetAttachment")
 const MarketingTarget = use("App/Models/MarketingTarget")
-const { RedisHelper, ResponseParser, ErrorLog } = use("App/Helpers")
+const { RedisHelper, ResponseParser, ErrorLog, GetRequestQuery } = use(
+  "App/Helpers"
+)
 const { ActivityTraits } = use("App/Traits")
 const Helpers = use("Helpers")
 const Drive = use("Drive")
@@ -18,65 +20,49 @@ class TargetAttachmentController {
    * Index
    * Get List of TargetAttachments
    */
-  async index({ request, response }) {
+  async index(ctx) {
+    const { request, response } = ctx
+
     try {
-      let {
-        page,
-        limit,
-        search,
-        search_by,
-        search_query,
-        between_date,
-        start_date,
-        end_date,
-        sort_by,
-        sort_mode,
-        marketing_target_id,
-      } = request.get()
-
-      if (!page) page = 1
-      if (!limit) limit = 100
-      if (!sort_by) sort_by = "id"
-      if (!sort_mode) sort_mode = "desc"
-
-      const redisKey = `TargetAttachment_${page}${limit}${sort_by}${sort_mode}${search_by}${search_query}${between_date}${start_date}${end_date}${marketing_target_id}`
-
+      const q = await GetRequestQuery(ctx)
+      const redisKey = `TargetAttachment_${q.redisKey}`
       let cached = await RedisHelper.get(redisKey)
 
-      if (cached && !search) {
+      if (cached && !q.search) {
+        console.log(redisKey)
         return cached
       }
 
       const data = await TargetAttachment.query()
         .with("target")
         .where(function() {
-          if (search && search != "") {
-            this.where("url", "like", `%${search}%`)
-            this.orWhere("caption", "like", `%${search}%`)
-            this.orWhere("tags", "like", `%${search}%`)
+          if (q.search && q.search != "") {
+            this.where("url", "like", `%${q.search}%`)
+            this.orWhere("caption", "like", `%${q.search}%`)
+            this.orWhere("tags", "like", `%${q.search}%`)
             this.orWhereHas("target", builder => {
-              builder.where("code", "like", `%${search}%`)
+              builder.where("code", "like", `%${q.search}%`)
             })
           }
 
-          if (marketing_target_id && marketing_target_id != "") {
-            this.where("marketing_target_id", marketing_target_id)
+          if (q.marketing_target_id && q.marketing_target_id != "") {
+            this.where("marketing_target_id", q.marketing_target_id)
           }
 
-          if (search_by && search_query) {
-            this.where(search_by, search_query)
+          if (q.search_by && q.search_query) {
+            this.where(q.search_by, q.search_query)
           }
 
-          if (between_date && start_date && end_date) {
-            this.whereBetween(between_date, [start_date, end_date])
+          if (q.between_date && q.start_date && q.end_date) {
+            this.whereBetween(q.between_date, [q.start_date, q.end_date])
           }
         })
-        .orderBy(sort_by, sort_mode)
-        .paginate(page, limit)
+        .orderBy(q.sort_by, q.sort_mode)
+        .paginate(q.page, q.limit)
 
       let parsed = ResponseParser.apiCollection(data.toJSON())
 
-      if (!search || search == "") {
+      if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
       return response.status(200).send(parsed)

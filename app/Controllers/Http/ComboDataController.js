@@ -96,7 +96,7 @@ class ComboDataController {
   }
 
   async getProducts() {
-    let redisKey = "University_Combo"
+    let redisKey = "Product_Combo"
     let cached = await RedisHelper.get(redisKey)
 
     if (cached != null) {

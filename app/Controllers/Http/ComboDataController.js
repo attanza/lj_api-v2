@@ -290,6 +290,7 @@ class ComboDataController {
   async getTarget(search) {
     if (search && search != "") {
       return await MarketingTarget.query()
+        .with("study.studyName")
         .select("id", "code")
         .where("code", "like", `%${search}%`)
         .orderBy("id", "desc")
@@ -304,13 +305,24 @@ class ComboDataController {
       return cached
     }
     const data = await MarketingTarget.query()
-      .select("id", "code")
-      .orderBy("id", "desc")
+      .with("study.studyName")
+      .orderBy("created_at", "desc")
       .limit(100)
       .fetch()
-    await RedisHelper.set(redisKey, data)
-    let parsed = data.toJSON()
-    return parsed
+    if (data) {
+      const comboData = []
+      const jsonData = data.toJSON()
+      jsonData.map(d => {
+        let code = d.code
+        if (d.study && d.study.studyName) {
+          code += ` - ${d.study.studyName.name}`
+        }
+        comboData.push({ id: d.id, code })
+      })
+      await RedisHelper.set(redisKey, comboData)
+      return comboData
+    }
+    return []
   }
 
   async getSchedulle(search) {

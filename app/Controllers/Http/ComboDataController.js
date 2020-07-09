@@ -121,7 +121,6 @@ class ComboDataController {
     }
     const data = await User.query()
       .select("id", "name")
-      .doesntHave("supervisors")
       .whereHas("roles", builder => {
         builder.where("role_id", 4)
       })

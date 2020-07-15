@@ -20,7 +20,6 @@ class ReferralController {
       const { redisKey } = query
       const cache = await RedisHelper.get(`Referral_${redisKey}`)
       if (cache && cache != null) {
-        console.log("get referral from cache")
         return cache
       }
       const data = await ReferralTrait.all(query)

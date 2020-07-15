@@ -31,7 +31,6 @@ class UserController {
       let cached = await RedisHelper.get(redisKey)
 
       if (cached && !q.search) {
-        console.log(redisKey)
         return cached
       }
 

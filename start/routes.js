@@ -631,4 +631,5 @@ Route.group(() => {
 
 Route.group(() => {
   Route.post("midtrans-notification", "MidtransController.notifHandler")
+  Route.post("xendit-notification", "XenditController.notifHandler")
 }).prefix("api/v1")

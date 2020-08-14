@@ -627,6 +627,7 @@ Route.group(() => {
   )
 
   Route.post("e-wallets/:type", "EwalletController.pay")
+  Route.get("e-wallets/:type/:id", "EwalletController.status")
 }).prefix("api/v1")
 // .middleware(["client", "throttle:3"])
 

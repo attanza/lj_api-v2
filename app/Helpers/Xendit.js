@@ -18,8 +18,14 @@ class XenditHelper {
       phone,
       ewalletType: EWallet.Type.OVO,
     }
-    console.log("postData", postData)
     return ew.createPayment(postData)
+  }
+
+  async ovoStatus(externalID) {
+    return ew.getPayment({
+      externalID,
+      ewalletType: EWallet.Type.OVO,
+    })
   }
 }
 

@@ -45,10 +45,32 @@ class EwalletController {
       return response
         .status(200)
         .send(ResponseParser.successResponse(data, "E-Wallet Payment"))
-    } catch (error) {
+    } catch (err) {
       return response
-        .status(error.status)
-        .send(ResponseParser.errorResponse(error.message))
+        .status(err.status)
+        .send(ResponseParser.errorResponse(err.message))
+    }
+  }
+
+  async status({ request, response }) {
+    try {
+      const { type, id } = request.params
+      let rules = {}
+      if (type === "ovo") {
+        const resp = await Xendit.ovoStatus(id)
+        return response
+          .status(200)
+          .send(ResponseParser.successResponse(resp, "OVO Payment"))
+      }
+      const data = { type }
+      return response
+        .status(200)
+        .send(ResponseParser.successResponse(data, "E-Wallet Payment"))
+    } catch (err) {
+      console.log("err", err)
+      return response
+        .status(500)
+        .send(ResponseParser.errorResponse(err.message))
     }
   }
 }
@@ -71,3 +93,15 @@ module.exports = EwalletController
 //   "phone": "081880001",
 //   "status": "PENDING"
 // }
+
+//  {
+//      id: '9c62d423-b680-4765-8560-5d59b2b4deb6',
+//      event: 'ewallet.payment',
+//      phone: '081880001',
+//      amount: 1001,
+//      status: 'COMPLETED',
+//      created: '2020-08-14T05:14:06.980Z',
+//      business_id: '5d9700b423cd651e7626344d',
+//      external_id: '1597382029',
+//      ewallet_type: 'OVO'
+//    }

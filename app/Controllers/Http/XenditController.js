@@ -2,6 +2,8 @@
 const { ResponseParser } = use("App/Helpers")
 class XenditController {
   async notifHandler({ request, response }) {
+    const headers = request.headers()
+    console.log("headers", headers)
     console.log(request.body)
     return this.sendResponse(response)
   }

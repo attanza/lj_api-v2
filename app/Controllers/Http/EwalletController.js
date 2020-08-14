@@ -37,6 +37,7 @@ class EwalletController {
         }
 
         const resp = await Xendit.ovoPayment(order.toJSON(), phone)
+        console.log("resp", resp)
         return response
           .status(200)
           .send(ResponseParser.successResponse(resp, "OVO Payment"))
@@ -46,9 +47,8 @@ class EwalletController {
         .status(200)
         .send(ResponseParser.successResponse(data, "E-Wallet Payment"))
     } catch (err) {
-      return response
-        .status(err.status)
-        .send(ResponseParser.errorResponse(err.message))
+      console.log("err", err)
+      return response.status(500).send(ResponseParser.unknownError())
     }
   }
 
@@ -68,9 +68,7 @@ class EwalletController {
         .send(ResponseParser.successResponse(data, "E-Wallet Payment"))
     } catch (err) {
       console.log("err", err)
-      return response
-        .status(500)
-        .send(ResponseParser.errorResponse(err.message))
+      return response.status(500).send(ResponseParser.unknownError())
     }
   }
 }

@@ -12,16 +12,29 @@ const ewalletSpecificOptions = {}
 const ew = new EWallet(ewalletSpecificOptions)
 const isDev = process.env.NODE_ENV === "development"
 
+const axios = require("axios")
+
 class XenditHelper {
+  setAxiosHeaders() {
+    const token = Buffer.from(`${process.env.XENDIT_SECRET}:`).toString(
+      "base64"
+    )
+    axios.defaults.headers.common["Authorization"] = `Basic ${token}`
+    axios.defaults.headers.post["Content-Type"] = "application/json"
+    axios.defaults.headers.post["Accept"] = "application/json"
+  }
+
   async ovoPayment(order, phone) {
+    this.setAxiosHeaders()
     const amount = isDev ? 80001 : order.price
     const postData = {
-      externalID: order.order_no,
+      external_id: order.order_no,
       amount,
       phone,
-      ewalletType: EWallet.Type.OVO,
+      ewallet_type: EWallet.Type.OVO,
     }
-    return ew.createPayment(postData)
+    // return ew.createPayment(postData)
+    return axios.post("https://api.xendit.co/ewallets", postData)
   }
 
   async ovoStatus(externalID) {

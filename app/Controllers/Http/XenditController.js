@@ -8,6 +8,7 @@ const { orderStatus } = use("App/Helpers/Constants")
 class XenditController {
   async notifHandler({ request, response }) {
     try {
+      console.log(request.body)
       const isProd = process.env.NODE_ENV === "production"
       const xenditIP = request.header("x-real-ip")
       if (isProd && xenditIP !== process.env.XENDIT_IP) {

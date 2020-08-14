@@ -12,7 +12,7 @@ class EwalletController {
       let rules = {}
       if (walletType === "ovo") {
         rules = {
-          order_no: "required",
+          order_no: "required|in:ovo",
           phone: "required",
         }
         const validation = await validate(
@@ -37,18 +37,17 @@ class EwalletController {
         }
 
         const resp = await Xendit.ovoPayment(order.toJSON(), phone)
-        console.log("resp", resp)
         return response
           .status(200)
           .send(ResponseParser.successResponse(resp, "OVO Payment"))
       }
-      const data = { walletType }
       return response
-        .status(200)
-        .send(ResponseParser.successResponse(data, "E-Wallet Payment"))
+        .status(400)
+        .send(ResponseParser.errorResponse("Unknown e-wallet"))
     } catch (err) {
-      console.log("err", err)
-      return response.status(500).send(ResponseParser.unknownError())
+      return response
+        .status(err.status)
+        .send(ResponseParser.errorResponse(err.message))
     }
   }
 
@@ -58,14 +57,14 @@ class EwalletController {
       let rules = {}
       if (type === "ovo") {
         const resp = await Xendit.ovoStatus(id)
+        await Xendit.ovoCallbackHandler(resp)
         return response
           .status(200)
           .send(ResponseParser.successResponse(resp, "OVO Payment"))
       }
-      const data = { type }
       return response
-        .status(200)
-        .send(ResponseParser.successResponse(data, "E-Wallet Payment"))
+        .status(400)
+        .send(ResponseParser.errorResponse("Unknown e-wallet"))
     } catch (err) {
       console.log("err", err)
       return response.status(500).send(ResponseParser.unknownError())

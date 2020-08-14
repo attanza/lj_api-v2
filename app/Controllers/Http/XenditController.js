@@ -36,7 +36,7 @@ class XenditController {
 
       return response
         .status(200)
-        .send(ResponseParser.successResponse(data, "Thank you"))
+        .send(ResponseParser.successResponse(null, "Thank you"))
     } catch (error) {
       console.log("error", error)
       return response.status(500).send(ResponseParser.unknownError())

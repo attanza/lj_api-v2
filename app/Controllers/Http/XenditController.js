@@ -14,3 +14,15 @@ class XenditController {
 }
 
 module.exports = XenditController
+
+// {
+//     id: '4876b696-a922-4bb5-a0b5-d23132206a70',
+//     event: 'ewallet.payment',
+//     phone: '081880001',
+//     amount: 1001,
+//     status: 'COMPLETED',
+//     created: '2020-08-14T00:58:49.154Z',
+//     business_id: '5d9700b423cd651e7626344d',
+//     external_id: 'ovo-ewallet-testing-id-1',
+//     ewallet_type: 'OVO'
+//   }

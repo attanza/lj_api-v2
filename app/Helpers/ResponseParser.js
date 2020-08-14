@@ -59,10 +59,10 @@ class ResponseParser {
     return output
   }
 
-  apiNotFound() {
+  apiNotFound(msg) {
     const meta = {
       status: 400,
-      message: "Data not found",
+      message: msg || "Data not found",
     }
     return { meta }
   }

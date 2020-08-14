@@ -1,21 +1,55 @@
 "use strict"
+
+const Xendit = require("../../Helpers/Xendit")
+
 const { ResponseParser } = use("App/Helpers")
+const Order = use("App/Models/OnlineProductOrder")
+const { orderStatus } = use("App/Helpers/Constants")
 class XenditController {
   async notifHandler({ request, response }) {
-    const headers = request.headers()
-    console.log(request.body)
-    const xenditIP = request.header("x-real-ip")
-    if (xenditIP !== process.env.XENDIT_IP) {
-      console.log("incorrect xendit ip address")
-      return this.sendResponse(response)
-    }
-    const callbackToken = request.header("x-callback-token")
+    try {
+      const isProd = process.env.NODE_ENV === "production"
+      const xenditIP = request.header("x-real-ip")
+      if (isProd && xenditIP !== process.env.XENDIT_IP) {
+        console.log("incorrect xendit ip address")
+        return this.sendResponse(response)
+      }
+      const callbackToken = request.header("x-callback-token")
 
-    if (callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
-      console.log("incorrect callbackToken ip address")
+      if (isProd && callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
+        console.log("incorrect callbackToken ip address")
+        return this.sendResponse(response)
+      }
+
+      const { external_id } = request.post()
+      if (!external_id) {
+        return response
+          .status(422)
+          .send(
+            ResponseParser.apiValidationFailed({}, "external_id is required")
+          )
+      }
+
+      let order = await Order.query()
+        .where("order_no", external_id)
+        // .where("status", orderStatus.WAITING_FOR_PAYMENT)
+        .first()
+
+      if (!order) {
+        console.log("Order not found")
+        return this.sendResponse(response)
+      }
+      const { event, ewallet_type } = request.body
+      console.log({ event, ewallet_type })
+      if (event === "ewallet.payment" && ewallet_type === "OVO") {
+        await Xendit.ovoCallbackHandler(order, request.body)
+      }
+
       return this.sendResponse(response)
+    } catch (error) {
+      console.log("error", error)
+      return response.status(500).send(ResponseParser.unknownError())
     }
-    return this.sendResponse(response)
   }
 
   sendResponse(response, data) {
@@ -26,15 +60,3 @@ class XenditController {
 }
 
 module.exports = XenditController
-
-// {
-//     id: '4876b696-a922-4bb5-a0b5-d23132206a70',
-//     event: 'ewallet.payment',
-//     phone: '081880001',
-//     amount: 1001,
-//     status: 'COMPLETED',
-//     created: '2020-08-14T00:58:49.154Z',
-//     business_id: '5d9700b423cd651e7626344d',
-//     external_id: 'ovo-ewallet-testing-id-1',
-//     ewallet_type: 'OVO'
-//   }

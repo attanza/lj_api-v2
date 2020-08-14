@@ -32,6 +32,7 @@ class XenditHelper {
   }
 
   async ovoCallbackHandler(order, data) {
+    console.log("OVO handler")
     const successStatus = ["COMPLETED"]
     const failedStatus = ["FAILED"]
     const isSuccess = successStatus.includes(data.status)

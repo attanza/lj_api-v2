@@ -12,7 +12,7 @@ class EwalletController {
       let rules = {}
       if (walletType === "ovo") {
         rules = {
-          order_no: "required|in:ovo",
+          order_no: "required",
           phone: "required",
         }
         const validation = await validate(

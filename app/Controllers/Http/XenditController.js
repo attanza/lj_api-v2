@@ -3,8 +3,18 @@ const { ResponseParser } = use("App/Helpers")
 class XenditController {
   async notifHandler({ request, response }) {
     const headers = request.headers()
-    console.log("headers", headers)
     console.log(request.body)
+    const xenditIP = request.header("x-real-ip")
+    if (xenditIP !== process.env.XENDIT_IP) {
+      console.log("incorrect xendit ip address")
+      return this.sendResponse(response)
+    }
+    const callbackToken = request.header("x-callback-token")
+
+    if (callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
+      console.log("incorrect callbackToken ip address")
+      return this.sendResponse(response)
+    }
     return this.sendResponse(response)
   }
 

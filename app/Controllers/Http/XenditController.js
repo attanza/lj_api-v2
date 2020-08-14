@@ -7,6 +7,7 @@ const { ResponseParser } = use("App/Helpers")
 class XenditController {
   async notifHandler({ request, response }) {
     try {
+      console.log(new Date())
       console.log(request.body)
       const isProd = process.env.NODE_ENV === "production"
       const xenditIP = request.header("x-real-ip")

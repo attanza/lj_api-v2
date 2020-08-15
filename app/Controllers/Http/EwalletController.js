@@ -26,10 +26,9 @@ class EwalletController {
   async status({ request, response }) {
     try {
       const { type, id } = request.params
-      let rules = {}
       if (type === "ovo") {
         const resp = await Xendit.ovoStatus(id)
-        await Xendit.ovoCallbackHandler(resp)
+        await Xendit.callbackHandler(resp)
         return response
           .status(200)
           .send(ResponseParser.successResponse(resp, "OVO Payment"))

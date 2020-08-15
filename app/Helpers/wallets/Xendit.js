@@ -4,7 +4,8 @@ const Xendit = require("xendit-node")
 const { orderStatus } = use("App/Helpers/Constants")
 const generateActivator = require("../generateActivator")
 const Order = use("App/Models/OnlineProductOrder")
-const moment = require(moment)
+const moment = require("moment")
+
 const x = new Xendit({
   secretKey: process.env.XENDIT_SECRET,
 })
@@ -64,16 +65,27 @@ class XenditHelper {
   }
 
   /**
+   * GET Dana Payment Status
+   * @param {String} externalID
+   */
+  async danaStatus(externalID) {
+    return ew.getPayment({
+      externalID,
+      ewalletType: EWallet.Type.DANA,
+    })
+  }
+
+  /**
    * OVO Callback Handler
    * @param {object} ctx
    */
-  async ovoCallbackHandler(ctx) {
+  async callbackHandler(ctx) {
     const { external_id, status, ewallet_type } = ctx
     const order = await this.getOrderByNo(external_id)
 
     if (order) {
-      const successStatus = ["COMPLETED"]
-      const failedStatus = ["FAILED"]
+      const successStatus = ["COMPLETED", "PAID"]
+      const failedStatus = ["FAILED", "EXPIRED	"]
       const isSuccess = successStatus.includes(status)
       const isFailed = failedStatus.includes(status)
       order.payment_detail = JSON.stringify(ctx)

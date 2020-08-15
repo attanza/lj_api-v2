@@ -3,7 +3,6 @@
 const ResponseParser = require("../ResponseParser")
 const { validate } = use("Validator")
 const validationMessage = use("App/Validators/messages")
-const OnlineProductOrder = use("App/Models/OnlineProductOrder")
 const Xendit = require("./Xendit")
 
 module.exports = async (request, response) => {

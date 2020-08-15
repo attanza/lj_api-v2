@@ -1,7 +1,6 @@
 "use strict"
 
 const Xendit = use("App/Helpers/wallets/Xendit")
-
 const { ResponseParser } = use("App/Helpers")
 
 class XenditController {
@@ -22,7 +21,7 @@ class XenditController {
         return this.sendResponse(response)
       }
 
-      const { external_id, event, ewallet_type } = request.post()
+      const { external_id, event } = request.post()
       if (!external_id) {
         return response
           .status(422)
@@ -31,8 +30,8 @@ class XenditController {
           )
       }
 
-      if (event === "ewallet.payment" && ewallet_type === "OVO") {
-        await Xendit.ovoCallbackHandler(request.post())
+      if (event === "ewallet.payment") {
+        await Xendit.callbackHandler(request.post())
       }
 
       return response

@@ -31,5 +31,5 @@ module.exports = async (request, response) => {
   const resp = await Xendit.linkAjaPayment(order.toJSON(), phone)
   return response
     .status(200)
-    .send(ResponseParser.successResponse(resp, "Dana Payment"))
+    .send(ResponseParser.successResponse(resp, "Link Aja Payment"))
 }

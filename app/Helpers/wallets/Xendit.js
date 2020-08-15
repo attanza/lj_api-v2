@@ -6,13 +6,13 @@ const generateActivator = require("../generateActivator")
 const Order = use("App/Models/OnlineProductOrder")
 const moment = require("moment")
 
+const isDev = process.env.NODE_ENV === "development"
 const x = new Xendit({
   secretKey: process.env.XENDIT_SECRET,
 })
 const { EWallet } = x
 const ewalletSpecificOptions = {}
 const ew = new EWallet(ewalletSpecificOptions)
-const isDev = process.env.NODE_ENV === "development"
 
 class XenditHelper {
   /**

@@ -8,17 +8,22 @@ class XenditController {
     try {
       console.log(new Date())
       console.log(request.body)
+      console.log(request.headers())
       const isProd = process.env.NODE_ENV === "production"
       const xenditIP = request.header("x-real-ip")
       if (isProd && xenditIP !== process.env.XENDIT_IP) {
         console.log("incorrect xendit ip address")
-        return this.sendResponse(response)
+        return response
+          .status(200)
+          .send(ResponseParser.successResponse(null, "Thank you"))
       }
 
       const callbackToken = request.header("x-callback-token")
       if (isProd && callbackToken !== process.env.XENDIT_CALLBACK_TOKEN) {
         console.log("incorrect callbackToken ip address")
-        return this.sendResponse(response)
+        return response
+          .status(200)
+          .send(ResponseParser.successResponse(null, "Thank you"))
       }
 
       const { external_id, event } = request.post()

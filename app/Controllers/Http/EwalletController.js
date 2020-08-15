@@ -1,52 +1,24 @@
 "use strict"
 
 const { ResponseParser } = use("App/Helpers")
-const { validate } = use("Validator")
-const validationMessage = use("App/Validators/messages")
-const OnlineProductOrder = use("App/Models/OnlineProductOrder")
-const Xendit = use("App/Helpers/Xendit")
+const { Xendit, Ovo, Dana } = use("App/Helpers/wallets")
 class EwalletController {
   async pay({ request, response }) {
     try {
       const walletType = request.params.type
-      let rules = {}
       if (walletType === "ovo") {
-        rules = {
-          order_no: "required",
-          phone: "required",
-        }
-        const validation = await validate(
-          request.all(),
-          rules,
-          validationMessage
-        )
-        if (validation.fails()) {
-          console.log(validation.messages())
-          return response
-            .status(200)
-            .send(ResponseParser.apiValidationFailed(validation.messages()))
-        }
-
-        const { order_no, phone } = request.post()
-
-        const order = await OnlineProductOrder.findBy("order_no", order_no)
-        if (!order) {
-          return response
-            .status(400)
-            .send(ResponseParser.apiNotFound("Order not found"))
-        }
-
-        const resp = await Xendit.ovoPayment(order.toJSON(), phone)
-        return response
-          .status(200)
-          .send(ResponseParser.successResponse(resp, "OVO Payment"))
+        return Ovo(request, response)
+      }
+      if (walletType === "dana") {
+        return Dana(request, response)
       }
       return response
         .status(400)
         .send(ResponseParser.errorResponse("Unknown e-wallet"))
     } catch (err) {
+      console.log("err", err)
       return response
-        .status(err.status)
+        .status(400)
         .send(ResponseParser.errorResponse(err.message))
     }
   }

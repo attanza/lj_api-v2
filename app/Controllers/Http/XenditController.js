@@ -1,6 +1,6 @@
 "use strict"
 
-const Xendit = require("../../Helpers/Xendit")
+const Xendit = use("App/Helpers/wallets/Xendit")
 
 const { ResponseParser } = use("App/Helpers")
 

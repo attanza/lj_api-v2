@@ -8,11 +8,20 @@ const moment = require("moment")
 
 const isDev = process.env.NODE_ENV === "development"
 const x = new Xendit({
-  secretKey: process.env.XENDIT_SECRET,
+  secretKey: getXenditSecret(),
 })
 const { EWallet } = x
 const ewalletSpecificOptions = {}
 const ew = new EWallet(ewalletSpecificOptions)
+
+function getXenditSecret() {
+  return isDev ? process.env.XENDIT_DEV_SECRET : process.env.XENDIT_SECRET
+}
+function getCallbackUrl() {
+  return isDev
+    ? "https://staging-admin.langsungjalan.com/api/v1/xendit-notification"
+    : "https://api.langsungjalan.com/api/v1/xendit-notification"
+}
 
 class XenditHelper {
   /**
@@ -37,8 +46,7 @@ class XenditHelper {
    * @param {String} order
    */
   async danaPayment(order) {
-    const callbackUrl =
-      "https://staging-admin.langsungjalan.com/api/v1/xendit-notification"
+    const callbackUrl = getCallbackUrl()
     const now = moment()
     // const amount = isDev ? 80001 : order.price
     const amount = order.price
@@ -61,8 +69,7 @@ class XenditHelper {
    *
    */
   async linkAjaPayment(order, phone) {
-    const callbackUrl =
-      "https://staging-admin.langsungjalan.com/api/v1/xendit-notification"
+    const callbackUrl = getCallbackUrl()
     const amount = order.price
     const item = {
       id: order.product.id.toString(),

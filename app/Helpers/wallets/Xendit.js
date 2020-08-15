@@ -148,7 +148,7 @@ class XenditHelper {
    * @param {String} externalID
    */
   async linkAjaStatus(externalID) {
-    return q.qrStatus({
+    return ew.getPayment({
       externalID,
       ewalletType: EWallet.Type.LinkAja,
     })

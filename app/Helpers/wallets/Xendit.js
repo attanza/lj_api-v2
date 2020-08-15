@@ -44,12 +44,12 @@ class XenditHelper {
     const postData = {
       externalID: order.order_no,
       amount,
-      expirationDate: now.add(5, "m").format(),
+      expirationDate: now.add(5, "m").toDate(),
       callbackURL: callbackUrl,
       redirectURL: callbackUrl,
-      ewalletType: EWallet.Type.DANA,
+      ewalletType: EWallet.Type.Dana,
     }
-
+    console.log("postData", postData)
     return ew.createPayment(postData)
   }
 
@@ -80,22 +80,23 @@ class XenditHelper {
    * @param {object} ctx
    */
   async callbackHandler(ctx) {
-    const { external_id, status, ewallet_type } = ctx
+    const { external_id, status, ewallet_type, payment_status } = ctx
     const order = await this.getOrderByNo(external_id)
 
     if (order) {
+      const walletStatus = status || payment_status
       const successStatus = ["COMPLETED", "PAID"]
       const failedStatus = ["FAILED", "EXPIRED	"]
-      const isSuccess = successStatus.includes(status)
-      const isFailed = failedStatus.includes(status)
+      const isSuccess = successStatus.includes(walletStatus)
+      const isFailed = failedStatus.includes(walletStatus)
       order.payment_detail = JSON.stringify(ctx)
+      order.payment_with = ewallet_type
 
       if (isFailed) {
-        status = orderStatus.PAYMENT_FAILED
+        order.status = orderStatus.PAYMENT_FAILED
       }
       if (isSuccess) {
         order.status = orderStatus.COMPLETED
-        order.payment_with = ewallet_type
         await generateActivator(order)
       }
       await order.save()

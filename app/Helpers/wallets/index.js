@@ -5,4 +5,5 @@ const Dana = require("./Dana")
 module.exports = {
   Ovo,
   Xendit,
+  Dana,
 }

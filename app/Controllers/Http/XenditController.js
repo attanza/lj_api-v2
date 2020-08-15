@@ -30,9 +30,7 @@ class XenditController {
           )
       }
 
-      if (event === "ewallet.payment") {
-        await Xendit.callbackHandler(request.post())
-      }
+      await Xendit.callbackHandler(request.post())
 
       return response
         .status(200)

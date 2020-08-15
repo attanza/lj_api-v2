@@ -46,7 +46,7 @@ class XenditHelper {
       amount,
       expirationDate: now.add(5, "m").toDate(),
       callbackURL: callbackUrl,
-      redirectURL: callbackUrl,
+      redirectURL: "https://api.langsungjalan.com",
       ewalletType: EWallet.Type.Dana,
     }
     console.log("postData", postData)

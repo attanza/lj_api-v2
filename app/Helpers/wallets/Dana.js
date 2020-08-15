@@ -6,9 +6,7 @@ const validationMessage = use("App/Validators/messages")
 const Xendit = require("./Xendit")
 
 module.exports = async (request, response) => {
-  console.log("dana handler")
-  let rules = {}
-  rules = {
+  const rules = {
     order_no: "required",
   }
   const validation = await validate(request.all(), rules, validationMessage)

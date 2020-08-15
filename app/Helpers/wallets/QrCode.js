@@ -8,7 +8,6 @@ const Xendit = require("./Xendit")
 module.exports = async (request, response) => {
   const rules = {
     order_no: "required",
-    phone: "required",
   }
   const validation = await validate(request.all(), rules, validationMessage)
   if (validation.fails()) {
@@ -17,7 +16,7 @@ module.exports = async (request, response) => {
       .send(ResponseParser.apiValidationFailed(validation.messages()))
   }
 
-  const { order_no, phone } = request.post()
+  const { order_no } = request.post()
 
   const order = await Xendit.getOrderByNo(order_no)
   if (!order) {
@@ -26,8 +25,8 @@ module.exports = async (request, response) => {
       .send(ResponseParser.apiNotFound("Order not found"))
   }
 
-  const resp = await Xendit.ovoPayment(order.toJSON(), phone)
+  const resp = await Xendit.qrPayment(order.toJSON())
   return response
     .status(200)
-    .send(ResponseParser.successResponse(resp, "OVO Payment"))
+    .send(ResponseParser.successResponse(resp, "QR Code Payment"))
 }

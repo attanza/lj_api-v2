@@ -10,9 +10,9 @@ const isDev = process.env.NODE_ENV === "development"
 const x = new Xendit({
   secretKey: getXenditSecret(),
 })
-const { EWallet } = x
-const ewalletSpecificOptions = {}
-const ew = new EWallet(ewalletSpecificOptions)
+const { EWallet, QrCode } = x
+const ew = new EWallet({})
+const q = new QrCode({})
 
 function getXenditSecret() {
   return isDev ? process.env.XENDIT_DEV_SECRET : process.env.XENDIT_SECRET
@@ -26,7 +26,7 @@ function getCallbackUrl() {
 class XenditHelper {
   /**
    * OVO Payment Handler
-   * @param {String} order
+   * @param {object} order
    * @param {String} phone
    */
   async ovoPayment(order, phone) {
@@ -43,7 +43,7 @@ class XenditHelper {
 
   /**
    * DANA Payment Handler
-   * @param {String} order
+   * @param {object} order
    */
   async danaPayment(order) {
     const callbackUrl = getCallbackUrl()
@@ -64,7 +64,7 @@ class XenditHelper {
 
   /**
    * Link Aja Payment Handler
-   * @param {String} order
+   * @param {object} order
    * @param {String} phone
    *
    */
@@ -88,6 +88,37 @@ class XenditHelper {
     }
     console.log("postData", postData)
     return ew.createPayment(postData)
+  }
+
+  /**
+   * QR Code Payment Handler
+   * @param {object} order
+   */
+  async qrPayment(order) {
+    const callbackUrl = getCallbackUrl()
+    const amount = order.price
+    const postData = {
+      externalID: order.order_no,
+      type: QrCode.Type.Dynamic,
+      amount,
+      callbackURL: callbackUrl,
+    }
+    console.log("postData", postData)
+    return q.createCode(postData)
+  }
+
+  /**
+   * Simulate QR Code Payment
+   * @param {object} order
+   */
+  async qrSimulate(order) {
+    const amount = order.price
+    const postData = {
+      externalID: order.order_no,
+      amount,
+    }
+    console.log("postData", postData)
+    return q.simulate(postData)
   }
 
   /**
@@ -117,7 +148,7 @@ class XenditHelper {
    * @param {String} externalID
    */
   async linkAjaStatus(externalID) {
-    return ew.getPayment({
+    return q.qrStatus({
       externalID,
       ewalletType: EWallet.Type.LinkAja,
     })
@@ -128,8 +159,13 @@ class XenditHelper {
    * @param {object} ctx
    */
   async callbackHandler(ctx) {
-    const { external_id, status, ewallet_type, payment_status } = ctx
-    const order = await this.getOrderByNo(external_id)
+    const { external_id, status, payment_status, event, qr_code } = ctx
+    let orderNo = external_id
+    if (event === "qr.payment") {
+      orderNo = qr_code.external_id
+      ctx.ewallet_type = "QR"
+    }
+    const order = await this.getOrderByNo(orderNo)
 
     if (order) {
       try {
@@ -139,7 +175,7 @@ class XenditHelper {
         const isSuccess = successStatus.includes(walletStatus)
         const isFailed = failedStatus.includes(walletStatus)
         order.payment_detail = JSON.stringify(ctx)
-        order.payment_with = ewallet_type
+        order.payment_with = ctx.ewallet_type
 
         if (isFailed) {
           order.status = orderStatus.PAYMENT_FAILED

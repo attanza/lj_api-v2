@@ -8,7 +8,6 @@ class XenditController {
     try {
       console.log(new Date())
       console.log(request.body)
-      console.log(request.headers())
       const isProd = process.env.NODE_ENV === "production"
 
       const callbackToken = request.header("x-callback-token")
@@ -19,8 +18,12 @@ class XenditController {
           .send(ResponseParser.successResponse(null, "Thank you"))
       }
 
-      const { external_id, event } = request.post()
-      if (!external_id) {
+      const { external_id, event, qr_code } = request.post()
+      let orderNo = external_id
+      if (event === "qr.payment") {
+        orderNo = qr_code.external_id
+      }
+      if (!orderNo) {
         return response
           .status(422)
           .send(

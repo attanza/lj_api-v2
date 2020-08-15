@@ -6,9 +6,7 @@ const validationMessage = use("App/Validators/messages")
 const Xendit = require("./Xendit")
 
 module.exports = async (request, response) => {
-  console.log("link aja handler")
-  let rules = {}
-  rules = {
+  const rules = {
     order_no: "required",
     phone: "required",
   }

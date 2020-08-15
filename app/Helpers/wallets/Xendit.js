@@ -40,7 +40,8 @@ class XenditHelper {
     const callbackUrl =
       "https://staging-admin.langsungjalan.com/api/v1/xendit-notification"
     const now = moment()
-    const amount = isDev ? 80001 : order.price
+    // const amount = isDev ? 80001 : order.price
+    const amount = order.price
     const postData = {
       externalID: order.order_no,
       amount,
@@ -48,6 +49,35 @@ class XenditHelper {
       callbackURL: callbackUrl,
       redirectURL: "https://api.langsungjalan.com",
       ewalletType: EWallet.Type.Dana,
+    }
+    console.log("postData", postData)
+    return ew.createPayment(postData)
+  }
+
+  /**
+   * Link Aja Payment Handler
+   * @param {String} order
+   * @param {String} phone
+   *
+   */
+  async linkAjaPayment(order, phone) {
+    const callbackUrl =
+      "https://staging-admin.langsungjalan.com/api/v1/xendit-notification"
+    const amount = order.price
+    const item = {
+      id: order.product.id.toString(),
+      name: order.product.name,
+      price: parseInt(order.product.price),
+      quantity: 1,
+    }
+    const postData = {
+      externalID: order.order_no,
+      phone,
+      amount,
+      items: [item],
+      callbackURL: callbackUrl,
+      redirectURL: "https://api.langsungjalan.com",
+      ewalletType: EWallet.Type.LinkAja,
     }
     console.log("postData", postData)
     return ew.createPayment(postData)
@@ -76,6 +106,17 @@ class XenditHelper {
   }
 
   /**
+   * GET Link Aja Payment Status
+   * @param {String} externalID
+   */
+  async linkAjaStatus(externalID) {
+    return ew.getPayment({
+      externalID,
+      ewalletType: EWallet.Type.LinkAja,
+    })
+  }
+
+  /**
    * OVO Callback Handler
    * @param {object} ctx
    */
@@ -84,23 +125,27 @@ class XenditHelper {
     const order = await this.getOrderByNo(external_id)
 
     if (order) {
-      const walletStatus = status || payment_status
-      const successStatus = ["COMPLETED", "PAID"]
-      const failedStatus = ["FAILED", "EXPIRED	"]
-      const isSuccess = successStatus.includes(walletStatus)
-      const isFailed = failedStatus.includes(walletStatus)
-      order.payment_detail = JSON.stringify(ctx)
-      order.payment_with = ewallet_type
+      try {
+        const walletStatus = status || payment_status
+        const successStatus = ["COMPLETED", "PAID", "SUCCESS_COMPLETED"]
+        const failedStatus = ["FAILED", "EXPIRED"]
+        const isSuccess = successStatus.includes(walletStatus)
+        const isFailed = failedStatus.includes(walletStatus)
+        order.payment_detail = JSON.stringify(ctx)
+        order.payment_with = ewallet_type
 
-      if (isFailed) {
-        order.status = orderStatus.PAYMENT_FAILED
+        if (isFailed) {
+          order.status = orderStatus.PAYMENT_FAILED
+        }
+        if (isSuccess) {
+          order.status = orderStatus.COMPLETED
+          await generateActivator(order)
+        }
+        await order.save()
+        return order
+      } catch (error) {
+        console.log("error in callback", error)
       }
-      if (isSuccess) {
-        order.status = orderStatus.COMPLETED
-        await generateActivator(order)
-      }
-      await order.save()
-      return order
     }
     console.log("order not found")
     return null

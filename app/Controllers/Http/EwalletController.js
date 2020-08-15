@@ -1,7 +1,7 @@
 "use strict"
 
 const { ResponseParser } = use("App/Helpers")
-const { Xendit, Ovo, Dana } = use("App/Helpers/wallets")
+const { Xendit, Ovo, Dana, LinkAja } = use("App/Helpers/wallets")
 class EwalletController {
   async pay({ request, response }) {
     try {
@@ -11,6 +11,9 @@ class EwalletController {
       }
       if (walletType === "dana") {
         return Dana(request, response)
+      }
+      if (walletType === "link-aja") {
+        return LinkAja(request, response)
       }
       return response
         .status(400)
@@ -28,6 +31,7 @@ class EwalletController {
       const { type, id } = request.params
       if (type === "ovo") {
         const resp = await Xendit.ovoStatus(id)
+        resp.ewallet_type = "OVO"
         await Xendit.callbackHandler(resp)
         return response
           .status(200)
@@ -35,10 +39,19 @@ class EwalletController {
       }
       if (type === "dana") {
         const resp = await Xendit.danaStatus(id)
+        resp.ewallet_type = "Dana"
         await Xendit.callbackHandler(resp)
         return response
           .status(200)
           .send(ResponseParser.successResponse(resp, "Dana Payment Status"))
+      }
+      if (type === "link-aja") {
+        const resp = await Xendit.linkAjaStatus(id)
+        resp.ewallet_type = "LinkAja"
+        await Xendit.callbackHandler(resp)
+        return response
+          .status(200)
+          .send(ResponseParser.successResponse(resp, "Link Aja Status"))
       }
       return response
         .status(400)

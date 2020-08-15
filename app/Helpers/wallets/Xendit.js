@@ -71,7 +71,7 @@ class XenditHelper {
   async danaStatus(externalID) {
     return ew.getPayment({
       externalID,
-      ewalletType: EWallet.Type.DANA,
+      ewalletType: EWallet.Type.Dana,
     })
   }
 

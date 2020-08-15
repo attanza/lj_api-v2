@@ -31,7 +31,14 @@ class EwalletController {
         await Xendit.callbackHandler(resp)
         return response
           .status(200)
-          .send(ResponseParser.successResponse(resp, "OVO Payment"))
+          .send(ResponseParser.successResponse(resp, "OVO Payment Status"))
+      }
+      if (type === "dana") {
+        const resp = await Xendit.danaStatus(id)
+        await Xendit.callbackHandler(resp)
+        return response
+          .status(200)
+          .send(ResponseParser.successResponse(resp, "Dana Payment Status"))
       }
       return response
         .status(400)
@@ -44,32 +51,3 @@ class EwalletController {
 }
 
 module.exports = EwalletController
-
-// {
-//   "external_id":"ovo-ewallet-testing-id-1",
-//   "amount":"1001",
-//   "phone":"081880001",
-//   "ewallet_type":"OVO"
-//   }
-
-// {
-//   "amount": 1001,
-//   "business_id": "5d9700b423cd651e7626344d",
-//   "created": "2020-08-14T04:05:40.532Z",
-//   "ewallet_type": "OVO",
-//   "external_id": "ovo-ewallet-testing-id-12",
-//   "phone": "081880001",
-//   "status": "PENDING"
-// }
-
-//  {
-//      id: '9c62d423-b680-4765-8560-5d59b2b4deb6',
-//      event: 'ewallet.payment',
-//      phone: '081880001',
-//      amount: 1001,
-//      status: 'COMPLETED',
-//      created: '2020-08-14T05:14:06.980Z',
-//      business_id: '5d9700b423cd651e7626344d',
-//      external_id: '1597382029',
-//      ewallet_type: 'OVO'
-//    }

@@ -31,7 +31,6 @@ class EwalletController {
       const { type, id } = request.params
       if (type === "ovo") {
         const resp = await Xendit.ovoStatus(id)
-        resp.ewallet_type = "OVO"
         await Xendit.callbackHandler(resp)
         return response
           .status(200)
@@ -39,7 +38,6 @@ class EwalletController {
       }
       if (type === "dana") {
         const resp = await Xendit.danaStatus(id)
-        resp.ewallet_type = "Dana"
         await Xendit.callbackHandler(resp)
         return response
           .status(200)
@@ -47,7 +45,7 @@ class EwalletController {
       }
       if (type === "link-aja") {
         const resp = await Xendit.linkAjaStatus(id)
-        resp.ewallet_type = "LinkAja"
+        resp.ewallet_type = "LINKAJA"
         await Xendit.callbackHandler(resp)
         return response
           .status(200)

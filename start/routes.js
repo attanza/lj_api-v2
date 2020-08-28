@@ -571,6 +571,10 @@ Route.group(() => {
   Route.get("revenue", "OnlineProductOrderController.revenue").validator(
     "GetRevenue"
   )
+  Route.get(
+    "online-product-orders/midtrans/:order_no",
+    "OnlineProductOrderController.getMidtransStatus"
+  )
 })
   .prefix("api/v1")
   .formats(["json"])

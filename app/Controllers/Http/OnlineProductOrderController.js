@@ -267,6 +267,23 @@ class OnlineProductOrderController {
     }
   }
 
+  async getMidtransStatus({ request, response }) {
+    try {
+      const { order_no } = request.params
+      if (!order_no) {
+        return response.status(400).send(ResponseParser.apiNotFound())
+      }
+
+      const resp = await Midtrans.getOrder(order.order_no)
+
+      return response.status(200).send(ResponseParser.apiItem(resp))
+    } catch (e) {
+      console.log("e", e)
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
   async disableOrder({ request, response }) {
     try {
       const { order_no, device_id } = request.params

@@ -216,7 +216,10 @@ class OnlineProductOrderController {
       // if (cached) {
       //   return response.status(200).send(cached)
       // }
-      const data = await OnlineProductOrder.find(id)
+      const data = await OnlineProductOrder.query()
+        .where("id", id)
+        .orWhere("order_no", id)
+        .first()
       if (!data) {
         return response.status(400).send(ResponseParser.apiNotFound())
       }

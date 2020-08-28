@@ -274,7 +274,7 @@ class OnlineProductOrderController {
         return response.status(400).send(ResponseParser.apiNotFound())
       }
 
-      const resp = await Midtrans.getOrder(order.order_no)
+      const resp = await Midtrans.getOrder(order_no)
 
       return response.status(200).send(ResponseParser.apiItem(resp))
     } catch (e) {

@@ -250,12 +250,14 @@ class OnlineProductOrderController {
 
       if (order.status === orderStatus.WAITING_FOR_PAYMENT) {
         const resp = await Midtrans.getOrder(order.order_no)
-        console.log("resp.status_code", resp.status_code)
-        const successStatus = ["200", "201"]
-        if (!successStatus.includes(resp.status_code)) {
-          order.status = orderStatus.PAYMENT_FAILED
-          await order.save()
-        }
+        // weird things happen when comes to gopay transaction
+        // midtrans does not recognize the transaction sometimes
+        // console.log("resp.status_code", resp.status_code)
+        // const successStatus = ["200", "201"]
+        // if (!successStatus.includes(resp.status_code)) {
+        //   order.status = orderStatus.PAYMENT_FAILED
+        //   await order.save()
+        // }
         order = await Midtrans.statusActions(resp, order)
       }
 

@@ -2,6 +2,7 @@
 
 const Hash = use("Hash")
 const User = use("App/Models/User")
+const PaymentMethod = use("App/Models/PaymentMethod")
 const { ResponseParser } = use("App/Helpers")
 
 /**
@@ -36,6 +37,10 @@ class LoginController {
     try {
       const me = await auth.getUser()
       await me.load("roles.permissions")
+      const paymentMethods = await PaymentMethod.query()
+        .select("name", "is_active")
+        .fetch()
+      me["paymentMethods"] = paymentMethods.toJSON()
       return response
         .status(200)
         .send(ResponseParser.successResponse(me, "Me data"))

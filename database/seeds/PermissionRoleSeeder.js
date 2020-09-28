@@ -24,6 +24,7 @@ const resources = [
   "Referral",
   "OnlineProductOrder",
   "ProductActivator",
+  "PaymentMethod",
 ]
 
 const otherPermissions = ["Clear Redis"]

@@ -568,6 +568,27 @@ Route.group(() => {
       ])
     )
 
+  /**
+   * Payment Methods
+   */
+
+  Route.resource("payment-methods", "PaymentMethodController")
+    .apiOnly()
+    .validator(
+      new Map([
+        [["payment-methods.store"], ["StorePaymentMethod"]],
+        [["payment-methods.update"], ["UpdatePaymentMethod"]],
+      ])
+    )
+    .middleware(
+      new Map([
+        [["payment-methods.index"], ["can:read-payment-method"]],
+        [["payment-methods.store"], ["can:create-payment-method"]],
+        [["payment-methods.update"], ["can:update-payment-method"]],
+        [["payment-methods.destroy"], ["can:delete-payment-method"]],
+      ])
+    )
+
   Route.get("revenue", "OnlineProductOrderController.revenue").validator(
     "GetRevenue"
   )

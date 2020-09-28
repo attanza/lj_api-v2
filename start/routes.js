@@ -625,6 +625,7 @@ Route.group(() => {
   Route.get("/check-target-code/:code", "MarketingTargetController.checkCode")
 
   Route.get("/products/:id", "ProductController.show")
+  Route.get("/payment-methods-list", "PaymentMethodController.listForMobile")
 })
   .prefix("api/v1")
   .formats(["json"])

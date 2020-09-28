@@ -50,6 +50,26 @@ class PaymentMethodController {
       if (!q.search || q.search == "") {
         await RedisHelper.set(redisKey, parsed)
       }
+
+      return response.status(200).send(parsed)
+    } catch (e) {
+      ErrorLog(request, e)
+      return response.status(500).send(ResponseParser.unknownError())
+    }
+  }
+
+  async listForMobile({ request, response }) {
+    try {
+      const redisKey = `PaymentMethod_Mobile}`
+      let cached = await RedisHelper.get(redisKey)
+      if (cached) {
+        return cached
+      }
+      const data = await PaymentMethod.query()
+        .select("name", "is_active")
+        .fetch()
+      const parsed = ResponseParser.apiItem(data.toJSON())
+      await RedisHelper.set(redisKey, parsed)
       return response.status(200).send(parsed)
     } catch (e) {
       ErrorLog(request, e)

@@ -2,7 +2,6 @@
 
 const Hash = use("Hash")
 const User = use("App/Models/User")
-const PaymentMethod = use("App/Models/PaymentMethod")
 const { ResponseParser } = use("App/Helpers")
 
 /**
@@ -26,6 +25,7 @@ class LoginController {
       // Include user data into token data
       await user.load("roles")
       data.user = user
+
       return response.status(200).send(this.successResponse(data))
     } catch (e) {
       console.log(e) //eslint-disable-line
@@ -37,10 +37,7 @@ class LoginController {
     try {
       const me = await auth.getUser()
       await me.load("roles.permissions")
-      const paymentMethods = await PaymentMethod.query()
-        .select("name", "is_active")
-        .fetch()
-      me["paymentMethods"] = paymentMethods.toJSON()
+
       return response
         .status(200)
         .send(ResponseParser.successResponse(me, "Me data"))
